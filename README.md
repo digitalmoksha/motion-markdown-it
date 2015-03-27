@@ -1,6 +1,8 @@
 # motion-markdown-it
 
-Markdown parser done right. Fast and easy to extend.  For use with **Ruby** and **RubyMotion**.
+[![Gem Version](https://badge.fury.io/rb/motion-markdown-it.svg)](http://badge.fury.io/rb/motion-markdown-it)
+
+Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin.
 
@@ -25,6 +27,7 @@ The benefit of this project, for me at least, is to have a standardized CommonMa
 - [Usage examples](#usage-examples)
 - [References / Thanks](#references--thanks)
 - [License](#license)
+
 <!--
 - [API](#api)
 - [Syntax extensions](#syntax-extensions)
@@ -72,7 +75,7 @@ result = MarkdownIt::Parser.new.renderInline('__markdown-it__ rulezz!')
 ### Init with presets and options
 
 (*) preset define combination of active rules and options. Can be
-`"commonmark"`, `"zero"` or `"default"` (if skipped). You can refere to the 
+`:commonmark`, `:zero` or `:default` (if skipped). You can refer to the 
 [markdown-it Javascript API docs](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) for more details.
 
 ```ruby

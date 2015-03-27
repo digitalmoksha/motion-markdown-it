@@ -2,7 +2,7 @@ require File.expand_path('../lib/motion-markdown-it/version.rb', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = 'motion-markdown-it'
-  gem.version       = '0.4.0.2'
+  gem.version       = MotionMarkdownIt::VERSION
   gem.authors       = ["Brett Walker", "Vitaly Puzrin", "Alex Kocharin"]
   gem.email         = 'github@digitalmoksha.com'
   gem.summary       = "Ruby version markdown-it"
