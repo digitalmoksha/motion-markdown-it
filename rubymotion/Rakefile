@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+$:.unshift("/Library/RubyMotion/lib")
+
+platform = ENV.fetch('platform', 'osx')
+
+require "motion/project/template/#{platform}"
+require 'rubygems'
+
+testing = true if ARGV.join(' ') =~ /spec/
+  
+begin
+  require 'bundler'
+  testing ? Bundler.require(:default, :spec) : Bundler.require
+rescue LoadError
+end
+
+Motion::Project::App.setup do |app|
+  app.name        = 'motion-markdown-it'
+  app.identifier  = 'com.motion-gemtest.motion-markdown-it'
+  # app.detect_dependencies = false
+end
