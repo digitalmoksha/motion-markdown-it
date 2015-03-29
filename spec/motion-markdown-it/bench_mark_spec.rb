@@ -1,5 +1,6 @@
-=begin
-runs          = 1 #50
+require 'kramdown'
+
+runs          = 50
 files         = ['mdsyntax.text', 'mdbasics.text']
 benchmark_dir = File.join(File.dirname(__FILE__), '../../benchmark')
 
@@ -14,10 +15,10 @@ files.each do |file|
   # results = Benchmark.bmbm do |b|
   results = Benchmark.bm do |b|
     b.report("motion-markdown-it 0.1.0") do
-      parser = MarkdownIt::Parser.new(:commonmark, { html: false })
+      parser = MarkdownIt::Parser.new({ html: true, linkify: true, typographer: true })
       runs.times { parser.render(data) }
     end
-    # b.report("kramdown #{Kramdown::VERSION}") { runs.times { Kramdown::Document.new(data).to_html } }
+    b.report("kramdown #{Kramdown::VERSION}") { runs.times { Kramdown::Document.new(data).to_html } }
     # b.report("markdown-it 4.0.1 JS") { runs.times { NSApplication.sharedApplication.delegate.markdown_it(data) } }
     # b.report(" hoedown 3.0.1") do
     #   runs.times do
@@ -41,4 +42,3 @@ describe "Benchmark Test" do
     expect(true).to eq true
   end
 end
-=end

@@ -16,6 +16,7 @@ else
   require 'mdurl-rb'
   require 'uc.micro-rb'
   require 'linkify-it-rb'
+  require 'motion-markdown-it/version'
   require 'motion-markdown-it/presets/default'
   require 'motion-markdown-it/presets/zero'
   require 'motion-markdown-it/presets/commonmark'

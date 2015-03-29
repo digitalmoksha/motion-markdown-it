@@ -4,5 +4,6 @@ gem 'rake'
 gem 'rspec'
 gem 'byebug'
 
+gem 'kramdown', require: 'kramdown'
 gemspec
 
