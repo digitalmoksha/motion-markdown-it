@@ -30,8 +30,8 @@ module MarkdownIt
         # treat end of the line as a whitespace
         nextChar = pos < max ? state.src.charCodeAt(pos) : 0x20
 
-        isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(lastChar.chr)
-        isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(nextChar.chr)
+        isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(lastChar.chr(Encoding::UTF_8))
+        isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(nextChar.chr(Encoding::UTF_8))
 
         isLastWhiteSpace = isWhiteSpace(lastChar)
         isNextWhiteSpace = isWhiteSpace(nextChar)
