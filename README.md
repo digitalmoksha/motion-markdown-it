@@ -4,7 +4,7 @@
 
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
-This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.0.3
+This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.1.0
 
 __[Javascript Live demo](https://markdown-it.github.io)__
 
