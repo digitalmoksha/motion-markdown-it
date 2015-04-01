@@ -54,8 +54,8 @@ module MarkdownIt
             lastChar = t.begin(0) - 1 >= 0 ? text.charCodeAt(t.begin(0) - 1) : 0x20
             nextChar = pos < max ? text.charCodeAt(pos) : 0x20
 
-            isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(lastChar.chr)
-            isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(nextChar.chr)
+            isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(lastChar.chr(Encoding::UTF_8))
+            isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(nextChar.chr(Encoding::UTF_8))
 
             isLastWhiteSpace = isWhiteSpace(lastChar)
             isNextWhiteSpace = isWhiteSpace(nextChar)
