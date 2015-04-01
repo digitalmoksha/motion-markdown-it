@@ -21,18 +21,6 @@ describe 'Utils' do
     expect(isValidEntityCode(0x7F)).to eq false
   end
 
-  # /*it('replaceEntities', function () {
-  #   var replaceEntities = require('../lib/common/utils').replaceEntities;
-  #
-  #   assert.strictEqual(replaceEntities('&amp;'), '&');
-  #   assert.strictEqual(replaceEntities('&#32;'), ' ');
-  #   assert.strictEqual(replaceEntities('&#x20;'), ' ');
-  #   assert.strictEqual(replaceEntities('&amp;&amp;'), '&&');
-  #
-  #   assert.strictEqual(replaceEntities('&am;'), '&am;');
-  #   assert.strictEqual(replaceEntities('&#00;'), '&#00;');
-  # });*/
-
   #------------------------------------------------------------------------------
   it 'assign' do
     expect(assign({ a: 1 }, nil, { b: 2 })).to eq ({ a: 1, b: 2 })

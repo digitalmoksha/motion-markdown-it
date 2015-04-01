@@ -9,6 +9,8 @@ module MarkdownIt
     include MarkdownIt::Common::Utils
     extend  MarkdownIt::Common::Utils
 
+    attr_accessor   :rules
+    
     # Default Rules
     #------------------------------------------------------------------------------
     def self.code_inline(tokens, idx)
