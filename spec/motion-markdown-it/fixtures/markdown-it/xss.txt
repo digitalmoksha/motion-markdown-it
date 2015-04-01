@@ -53,7 +53,27 @@ Should not allow some protocols in links and images
 .
 
 
-Image parser use the same code base.
+Should not allow data-uri except some whitelisted mimes
+.
+![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)
+.
+<p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""></p>
+.
+
+.
+[xss link](data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K)
+.
+<p>[xss link](data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K)</p>
+.
+
+.
+[normal link](/javascript:link)
+.
+<p><a href="/javascript:link">normal link</a></p>
+.
+
+
+Image parser use the same code base as link.
 .
 ![xss link](javascript:alert(1))
 .

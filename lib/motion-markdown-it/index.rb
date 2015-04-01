@@ -7,18 +7,21 @@ CONFIG = {
   commonmark: MarkdownIt::Presets::Commonmark.options
 }
 
+#------------------------------------------------------------------------------
+# This validator does not pretend to functionality of full weight sanitizers.
+# It's a tradeoff between default security, simplicity and usability.
+# If you need different setup - override validator method as you wish. Or
+# replace it with dummy function and use external sanitizer.
 
-BAD_PROTOCOLS    = [ 'vbscript', 'javascript', 'file' ]
+BAD_PROTO_RE = /^(vbscript|javascript|file|data):/
+GOOD_DATA_RE = /^data:image\/(gif|png|jpeg|webp);/
 
 VALIDATE_LINK = lambda do |url|
   # url should be normalized at this point, and existing entities are decoded
   #
   str = url.strip.downcase
 
-  if str.include?(':') && BAD_PROTOCOLS.include?(str.split(':')[0])
-    return false
-  end
-  return true
+  return !!(BAD_PROTO_RE =~ str) ? (!!(GOOD_DATA_RE =~ str) ? true : false) : true
 end
 
 RECODE_HOSTNAME_FOR = [ 'http:', 'https:', 'mailto:' ]
