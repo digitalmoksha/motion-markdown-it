@@ -16,25 +16,25 @@ describe 'Ruler' do
   end
 
 
-  # #------------------------------------------------------------------------------
-  # it 'should inject before/after rule' do
-  #   ruler = MarkdownIt::Ruler.new
-  #   res = 0
-  #
-  #   ruler.push('test', lambda { res = 1 })
-  #   ruler.before('test', 'before_test', lambda { res = -10 })
-  #   ruler.after('test', 'after_test', lambda { res = 10 })
-  #
-  #   rules = ruler.getRules('')
-  #
-  #   expect(rules.length).to eq 3
-  #   rules[0].call
-  #   expect(res).to eq -10
-  #   rules[1].call
-  #   expect(res).to eq 1
-  #   rules[2].call
-  #   expect(res).to eq 10
-  # end
+  #------------------------------------------------------------------------------
+  it 'should inject before/after rule' do
+    ruler = MarkdownIt::Ruler.new
+    @res = 0
+
+    ruler.push('test', lambda { @res = 1 })
+    ruler.before('test', 'before_test', lambda { @res = -10; })
+    ruler.after('test', 'after_test', lambda { @res = 10; })
+
+    rules = ruler.getRules('');
+
+    expect(rules.length).to eq 3
+    rules[0].call
+    expect(@res).to eq -10
+    rules[1].call
+    expect(@res).to eq 1
+    rules[2].call
+    expect(@res).to eq 10
+  end
 
 
   #------------------------------------------------------------------------------

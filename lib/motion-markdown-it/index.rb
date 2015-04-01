@@ -26,40 +26,44 @@ RECODE_HOSTNAME_FOR = [ 'http:', 'https:', 'mailto:' ]
 # mdurl comes from https://github.com/markdown-it/mdurl
 NORMALIZE_LINK = lambda do |url|
   parsed = MDUrl::Url.urlParse(url, true)
+  if parsed.hostname
+    # Encode hostnames in urls like:
+    # `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
+    #
+    # We don't encode unknown schemas, because it's likely that we encode
+    # something we shouldn't (e.g. `skype:name` treated as `skype:host`)
+    if !parsed.protocol || RECODE_HOSTNAME_FOR.include?(parsed.protocol)
+      begin
+        trailing_dot    = parsed.hostname[-1] == '.'
+        parsed.hostname = SimpleIDN.to_ascii(parsed.hostname)
+        parsed.hostname << '.' if trailing_dot
+      rescue
+        # then use what we already have
+      end
+    end
+  end
  
-  # if parsed[:hostname]
-  #   # Encode hostnames in urls like:
-  #   # `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
-  #   #
-  #   # We don't encode unknown schemas, because it's likely that we encode
-  #   # something we shouldn't (e.g. `skype:name` treated as `skype:host`)
-  #   if !parsed[:protocol] || RECODE_HOSTNAME_FOR.include?(parsed[:protocol])
-  #     # TODO is punycode really needed?
-  #     # try {
-  #     #   parsed.hostname = punycode.toASCII(parsed.hostname);
-  #     # } catch(er) {}
-  #   end
-  # end
- 
-  return MDUrl::Encode.encode(MDUrl::Format.format(parsed)); 
+  return MDUrl::Encode.encode(MDUrl::Format.format(parsed))
 end
 
 NORMALIZE_LINK_TEXT = lambda do |url|
   parsed = MDUrl::Url.urlParse(url, true)
-
-  # if parsed[:hostname]
-  #   # Encode hostnames in urls like:
-  #   # `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
-  #   #
-  #   # We don't encode unknown schemas, because it's likely that we encode
-  #   # something we shouldn't (e.g. `skype:name` treated as `skype:host`)
-  #   if !parsed[:protocol] || RECODE_HOSTNAME_FOR.include?(parsed[:protocol])
-  #     # TODO is punycode really needed?
-  #     # try {
-  #     #   parsed.hostname = punycode.toUnicode(parsed.hostname);
-  #     # } catch(er) {}
-  #   end
-  # end
+  if parsed.hostname
+    # Encode hostnames in urls like:
+    # `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
+    #
+    # We don't encode unknown schemas, because it's likely that we encode
+    # something we shouldn't (e.g. `skype:name` treated as `skype:host`)
+    if !parsed.protocol || RECODE_HOSTNAME_FOR.include?(parsed.protocol)
+      begin
+        trailing_dot    = parsed.hostname[-1] == '.'
+        parsed.hostname = SimpleIDN.to_unicode(parsed.hostname)
+        parsed.hostname << '.' if trailing_dot
+      rescue
+        # then use what we already have
+      end
+    end
+  end
 
   return MDUrl::Decode.decode(MDUrl::Format.format(parsed))
 end
@@ -147,9 +151,9 @@ module MarkdownIt
     # - __quotes__ - `“”‘’`, string. Double + single quotes replacement pairs, when
     #   typographer enabled and smartquotes on. Set doubles to '«»' for Russian,
     #   '„“' for German.
-    # - __highlight__ - `null`. Highlighter function for fenced code blocks.
+    # - __highlight__ - `nil`. Highlighter function for fenced code blocks.
     #   Highlighter `function (str, lang)` should return escaped HTML. It can also
-    #   return empty string if the source was not changed and should be escaped externaly.
+    #   return nil if the source was not changed and should be escaped externaly.
     #
     # ##### Example
     #
@@ -273,20 +277,6 @@ module MarkdownIt
 
       #  Expose utils & helpers for easy acces from plugins
 
-      # TODO I don't know if these (utils and helpers) are really needed
-      # MarkdownIt#utils -> utils
-      #
-      # Assorted utility functions, useful to write plugins. See details
-      # [here](https://github.com/markdown-it/markdown-it/blob/master/lib/common/utils.js).
-      # this.utils = utils;
-
-      # MarkdownIt#helpers -> helpers
-      #
-      # Link components parser functions, useful to write plugins. See details
-      # [here](https://github.com/markdown-it/markdown-it/blob/master/lib/helpers).
-      # this.helpers = helpers;
-
-
       @options = {}
       configure(presetName)
       set(options) if options
@@ -366,7 +356,7 @@ module MarkdownIt
     #             .disable('smartquotes');
     # ```
     #------------------------------------------------------------------------------
-    def enable(list, ignoreInvalid)
+    def enable(list, ignoreInvalid = false)
       result = []
 
       list = [ list ] if !list.is_a? Array
@@ -374,10 +364,10 @@ module MarkdownIt
       result << @core.ruler.enable(list, true)
       result << @block.ruler.enable(list, true)
       result << @inline.ruler.enable(list, true)
-
-      missed = list.select {|name| result.include?(name) }
-
-      if missed.length && !ignoreInvalid
+      result.flatten!
+      
+      missed = list.select {|name| !result.include?(name) }
+      if !(missed.empty? || ignoreInvalid)
         raise StandardError, "MarkdownIt. Failed to enable unknown rule(s): #{missed}"
       end
 
@@ -391,7 +381,8 @@ module MarkdownIt
     # - ignoreInvalid (Boolean): set `true` to ignore errors when rule not found.
     #
     # The same as [[MarkdownIt.enable]], but turn specified rules off.
-    def disable(list, ignoreInvalid)
+    #------------------------------------------------------------------------------
+    def disable(list, ignoreInvalid = false)
       result = []
 
       list = [ list ] if !list.is_a? Array
@@ -399,10 +390,10 @@ module MarkdownIt
       result << @core.ruler.disable(list, true)
       result << @block.ruler.disable(list, true)
       result << @inline.ruler.disable(list, true)
+      result.flatten!
 
-      missed = list.select {|name| result.include?(name) }
-
-      if missed.length && !ignoreInvalid
+      missed = list.select {|name| !result.include?(name) }
+      if !(missed.empty? || ignoreInvalid)
         raise StandardError, "MarkdownIt. Failed to disable unknown rule(s): #{missed}"
       end
 
@@ -426,10 +417,8 @@ module MarkdownIt
     #             });
     # ```
     def use(plugin, *args)
-      puts "Implement: Parser.use"
-      # var args = [ this ].concat(Array.prototype.slice.call(arguments, 1));
-      # plugin.call(plugin, args)
-      # return self
+      plugin.call(plugin, *args)
+      return self
     end
 
 

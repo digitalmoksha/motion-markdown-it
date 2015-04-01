@@ -4,7 +4,7 @@
 
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
-This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin.
+This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.0.3
 
 __[Javascript Live demo](https://markdown-it.github.io)__
 
@@ -13,13 +13,13 @@ __[Javascript Live demo](https://markdown-it.github.io)__
 - High speed
 - Community-written plugins
 
-## Beta
-
-The gem is still a work in progress.  There are several areas to get working better, including plugins and performance.  It will track as closely as possible to fixes and enhancements in the main _markdown-it_ implementation. Currently synced with markdown-it 4.0.3
-
 ## Benefit
 
 The benefit of this project, for me at least, is to have a standardized CommonMark compliant, fast, and extendable, Markdown parser which can be used from Javascript, Ruby, and/or RubyMotion, as the development situation warrants.
+
+## Performance
+
+Performance is still an issue.  While it performs reasonably well with small to medium files, it degrades for large files.  Work in progres...
 
 ## Table of content
 
@@ -63,20 +63,19 @@ and run `bundle install`
 
 ```ruby
 parser = MarkdownIt::Parser.new(:commonmark, { html: false })
-parser.render('# markdown-it rulezz!')
+parser.render('# markdown-it in **Ruby**')
 ```
 
 Single line rendering, without paragraph wrap:
 
 ```ruby
-result = MarkdownIt::Parser.new.renderInline('__markdown-it__ rulezz!')
+result = MarkdownIt::Parser.new.renderInline('__markdown-it__ in Ruby')
 ```
 
 ### Init with presets and options
 
-(*) preset define combination of active rules and options. Can be
-`:commonmark`, `:zero` or `:default` (if skipped). You can refer to the 
-[markdown-it Javascript API docs](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) for more details.
+(*) presets define combinations of active rules and options. Can be
+`:commonmark`, `:zero` or `:default` (if skipped).
 
 ```ruby
 #--- commonmark mode
@@ -106,8 +105,8 @@ parser = MarkdownIt::Parser.new({
   quotes: '“”‘’',
 
   # Highlighter function. Should return escaped HTML,
-  # or '' if the source string is not changed and should be escaped externaly.
-  highlight: lambda {|str, lang| return ''}
+  # or nil if the source string is not changed and should be escaped externaly.
+  highlight: lambda {|str, lang| return nil}
 })
 ```
 

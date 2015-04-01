@@ -15,7 +15,7 @@ module MarkdownIt
   module RulesCore
     class Replacements
 
-      # TODO:
+      # TODO (from original)
       # - fractionals 1/2, 1/4, 3/4 -> ½, ¼, ¾
       # - miltiplication 2 x 4 -> 2 × 4
 
