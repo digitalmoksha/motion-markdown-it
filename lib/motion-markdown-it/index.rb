@@ -407,20 +407,20 @@ module MarkdownIt
     # chainable
     # MarkdownIt.use(plugin, params)
     #
-    # Load specified plugin with given params into current parser instance.
-    # It's just a sugar to call `plugin(md, params)` with curring.
+    # Initialize and Load specified plugin with given params into current parser
+    # instance. It's just a sugar to call `plugin.init_plugin(md, params)`
     #
     # ##### Example
     #
-    # ```javascript
-    # var iterator = require('markdown-it-for-inline');
-    # var md = require('markdown-it')()
-    #             .use(iterator, 'foo_replace', 'text', function (tokens, idx) {
-    #               tokens[idx].content = tokens[idx].content.replace(/foo/g, 'bar');
-    #             });
+    # ```ruby
+    # md = MarkdownIt::Parser.new
+    # md.use(MDPlugin::Iterator, 'foo_replace', 'text', 
+    #        lambda {|tokens, idx|
+    #          tokens[idx].content = tokens[idx].content.gsub(/foo/, 'bar')
+    # })
     # ```
     def use(plugin, *args)
-      plugin.call(plugin, *args)
+      plugin.init_plugin(self, *args)
       return self
     end
 
