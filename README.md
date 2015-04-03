@@ -25,6 +25,7 @@ Performance is still an issue.  While it performs reasonably well with small to 
 
 - [Install](#install)
 - [Usage examples](#usage-examples)
+- [Plugins](#plugins)
 - [References / Thanks](#references--thanks)
 - [License](#license)
 
@@ -109,6 +110,19 @@ parser = MarkdownIt::Parser.new({
   highlight: lambda {|str, lang| return nil}
 })
 ```
+
+## Plugins
+
+Plugins can be used to extend the syntax and functionality.  A [sample set of plugins](https://github.com/digitalmoksha/motion-markdown-it-plugins) has been created based on those already created for the javascript version.  Included are:
+
+* [Abbreviations](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/abbr)
+* [Checkbox/Tasklists](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/checkbox_replace)
+* [Containers](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/container)
+* [Definition Lists](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/deflist)
+* [Insert](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/ins)
+* [Mark](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/mark)
+* [Subscript](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/sub)
+* [Superscript](https://github.com/digitalmoksha/motion-markdown-it-plugins/tree/master/lib/motion-markdown-it-plugins/sup)
 
 <!--
 ### Plugins load
