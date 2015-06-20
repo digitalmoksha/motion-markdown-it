@@ -7,7 +7,6 @@ end
 
 #------------------------------------------------------------------------------
 def get_tests(specfile)
-  puts "!!!!!CommonMark Specs"
   line_number    = 0
   start_line     = 0
   end_line       = 0
