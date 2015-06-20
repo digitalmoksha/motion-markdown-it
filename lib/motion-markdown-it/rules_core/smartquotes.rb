@@ -105,15 +105,27 @@ module MarkdownIt
                 break if (stack[j][:level] < thisLevel)
                 if (item[:single] == isSingle && stack[j][:level] == thisLevel)
                   item = stack[j]
-                  if (isSingle)
-                    tokens[item[:token]].content = replaceAt(tokens[item[:token]].content, item[:pos], state.md.options[:quotes][2])
-                    token.content = replaceAt(token.content, t.begin(0), state.md.options[:quotes][3])
+                  if isSingle
+                    openQuote  = state.md.options[:quotes][2]
+                    closeQuote = state.md.options[:quotes][3]
                   else
-                    tokens[item[:token]].content = replaceAt(tokens[item[:token]].content, item[:pos], state.md.options[:quotes][0])
-                    token.content = replaceAt(token.content, t.begin(0), state.md.options[:quotes][1])
+                    openQuote  = state.md.options[:quotes][0]
+                    closeQuote = state.md.options[:quotes][1]
                   end
-                  # stack.length = j
-                  stack = (j < stack.length ? stack.slice(0, j) : stack.fill(nil, stack.length...(j)))
+                  
+                  # replace token.content *before* tokens[item.token].content,
+                  # because, if they are pointing at the same token, replaceAt
+                  # could mess up indices when quote length != 1
+                  token.content = replaceAt(token.content, t.begin(0), closeQuote)
+                  tokens[item[:token]].content = replaceAt(tokens[item[:token]].content, item[:pos], openQuote)
+
+                  pos += closeQuote.length - 1
+                  pos += (openQuote.length - 1) if item[:token] == i
+
+                  text = token.content
+                  max  = text.length
+                  
+                  stack = (j < stack.length ? stack.slice(0, j) : stack.fill(nil, stack.length...(j)))  # stack.length = j
                   continue_outer_loop = true    # continue OUTER;
                   break
                 end

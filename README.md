@@ -4,14 +4,17 @@
 
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
-This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.1.0
+This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.2.2
 
 __[Javascript Live demo](https://markdown-it.github.io)__
 
-- Supports the CommonMark spec + syntax extensions + sugar (URL autolinking, typographer)
+Follows the __[CommonMark spec](http://spec.commonmark.org/)__ + adds syntax extensions & sugar (URL autolinking, typographer).
 - Configurable syntax. You can add new rules and even replace existing ones.
-- High speed
+- [Safe](https://github.com/markdown-it/markdown-it/tree/master/docs/security.md) by default.
 - Community-written plugins
+- Community-written plugins
+  * [Ruby/RubyMotion](https://github.com/digitalmoksha/motion-markdown-it-plugins)
+  * [original javascript plugins](https://www.npmjs.org/browse/keyword/markdown-it-plugin) and [other packages](https://www.npmjs.org/browse/keyword/markdown-it) on npm.
 
 ## Benefit
 
@@ -102,7 +105,10 @@ parser = MarkdownIt::Parser.new({
   typographer:  false,
 
   # Double + single quotes replacement pairs, when typographer enabled,
-  # and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+  # and smartquotes on. Could be either a String or an Array.
+  #
+  # For example, you can use '«»„“' for Russian, '„“‚‘' for German,
+  # and ['«\xA0', '\xA0»', '‹\xA0', '\xA0›'] for French (including nbsp).
   quotes: '“”‘’',
 
   # Highlighter function. Should return escaped HTML,
@@ -193,7 +199,7 @@ Via plugins:
 ### Manage rules
 
 By default all rules are enabled, but can be restricted by options. On plugin
-load all it's rules are enabled automatically.
+load all its rules are enabled automatically.
 
 ```js
 // Activate/deactivate rules, with curring
@@ -211,9 +217,9 @@ md = require('markdown-it')('full', {
 ```
 
 
-## Benchmark
+## Benchmark (for Javascript version)
 
-Here is result of readme parse at MB Pro Retina 2013 (2.4 GHz):
+Here is the result of readme parse at MB Pro Retina 2013 (2.4 GHz):
 
 ```bash
 $ benchmark/benchmark.js readme
@@ -231,7 +237,7 @@ __Note.__ CommonMark version runs with [simplified link normalizers](https://git
 for more "honest" compare. Difference is ~ 1.5x.
 
 As you can see, `markdown-it` doesn't pay with speed for it's flexibility.
-Slowdown of "full" version caused by additional features, not available in
+Slowdown of "full" version caused by additional features not available in
 other implementations.
 
 -->

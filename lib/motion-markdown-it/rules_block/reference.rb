@@ -33,10 +33,12 @@ module MarkdownIt
         terminatorRules = state.md.block.ruler.getRules('reference')
 
         while nextLine < endLine && !state.isEmpty(nextLine)
-          nextLine += 1
           # this would be a code block normally, but after paragraph
           # it's considered a lazy continuation regardless of what's there
-          next if (state.tShift[nextLine] - state.blkIndent > 3)
+          (nextLine += 1) && next if (state.tShift[nextLine] - state.blkIndent > 3)
+
+          # quirk for blockquotes, this line should already be checked by that rule
+          (nextLine += 1) && next if state.tShift[nextLine] < 0
 
           # Some tags can terminate paragraph without empty line.
           terminate = false
@@ -47,6 +49,7 @@ module MarkdownIt
             end
           end
           break if (terminate)
+          nextLine += 1
         end
 
         str      = state.getLines(startLine, nextLine, state.blkIndent, false).strip
@@ -140,11 +143,16 @@ module MarkdownIt
           return false
         end
 
+        label = normalizeReference(str.slice(1...labelEnd))
+        if label == ''
+          # CommonMark 0.20 disallows empty labels
+          return false
+        end
+
         # Reference can not terminate anything. This check is for safety only.
         # istanbul ignore if
         return true if (silent)
 
-        label = normalizeReference(str.slice(1...labelEnd))
         if (state.env[:references].nil?)
           state.env[:references] = {}
         end

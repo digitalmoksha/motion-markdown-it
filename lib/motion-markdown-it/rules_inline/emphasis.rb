@@ -9,21 +9,17 @@ module MarkdownIt
       # "start" should point at a valid marker
       #------------------------------------------------------------------------------
       def self.scanDelims(state, start)
-        pos       = start
-        can_open  = true
-        can_close = true
-        max       = state.posMax
-        marker    = state.src.charCodeAt(start)
+        pos            = start
+        left_flanking  = true
+        right_flanking = true
+        max            = state.posMax
+        marker         = state.src.charCodeAt(start)
 
         # treat beginning of the line as a whitespace
         lastChar = start > 0 ? state.src.charCodeAt(start - 1) : 0x20
 
         while (pos < max && state.src.charCodeAt(pos) == marker)
           pos += 1
-        end
-
-        if (pos >= max)
-          can_open = false
         end
 
         count = pos - start
@@ -38,27 +34,28 @@ module MarkdownIt
         isNextWhiteSpace = isWhiteSpace(nextChar)
 
         if (isNextWhiteSpace)
-          can_open = false
+          left_flanking = false
         elsif (isNextPunctChar)
           if (!(isLastWhiteSpace || isLastPunctChar))
-            can_open = false
+            left_flanking = false
           end
         end
 
         if (isLastWhiteSpace)
-          can_close = false
+          right_flanking = false
         elsif (isLastPunctChar)
           if (!(isNextWhiteSpace || isNextPunctChar))
-            can_close = false
+            right_flanking = false
           end
         end
 
         if (marker == 0x5F) # _
-          if (can_open && can_close)
-            # "_" inside a word can neither open nor close an emphasis
-            can_open  = false
-            can_close = isNextPunctChar
-          end
+          # "_" inside a word can neither open nor close an emphasis
+          can_open  = left_flanking  && (!right_flanking || isLastPunctChar)
+          can_close = right_flanking && (!left_flanking  || isNextPunctChar)
+        else
+          can_open  = left_flanking
+          can_close = right_flanking
         end
 
         return { can_open: can_open, can_close: can_close, delims: count }

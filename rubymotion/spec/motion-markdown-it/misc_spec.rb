@@ -4,7 +4,7 @@ describe 'API' do
   it 'constructor' do
     expect {
       MarkdownIt::Parser.new('bad preset')
-    }.to raise_error
+    }.to raise_error(StandardError)
 
     # options should override preset
     md = MarkdownIt::Parser.new(:commonmark, { html: false })
@@ -23,7 +23,7 @@ describe 'API' do
 
     expect {
       md.configure
-    }.to raise_error
+    }.to raise_error(StandardError)
   end
 
   class TestPlugin
@@ -131,11 +131,11 @@ describe 'API' do
     md = MarkdownIt::Parser.new
     expect {
       md.enable([ 'link', 'code', 'invalid' ])
-    }.to raise_error
+    }.to raise_error(StandardError)
 
     expect {
       md.disable([ 'link', 'code', 'invalid' ])
-    }.to raise_error
+    }.to raise_error(StandardError)
 
     expect {
       md.enable([ 'link', 'code' ])
@@ -300,4 +300,30 @@ describe 'maxNesting' do
     expect(md.render(">foo\n>>bar\n>>>baz")).to eq "<blockquote>\n<p>foo</p>\n<blockquote></blockquote>\n</blockquote>\n"
   end
 
+end
+
+#------------------------------------------------------------------------------
+describe 'smartquotes' do
+  md = MarkdownIt::Parser.new({
+    typographer: true,
+
+    # all strings have different length to make sure
+    # we didn't accidentally count the wrong one
+    quotes: [ '[[[', ']]', '(((((', '))))' ]
+  })
+
+  #------------------------------------------------------------------------------
+  it 'Should support multi-character quotes' do
+    expect(md.render('"foo" \'bar\'')).to eq "<p>[[[foo]] (((((bar))))</p>\n"
+  end
+
+  #------------------------------------------------------------------------------
+  it 'Should support nested multi-character quotes' do
+    expect(md.render('"foo \'bar\' baz"')).to eq "<p>[[[foo (((((bar)))) baz]]</p>\n"
+  end
+
+  #------------------------------------------------------------------------------
+  it 'Should support multi-character quotes in different tags' do
+    expect(md.render('"a *b \'c *d* e\' f* g"')).to eq "<p>[[[a <em>b (((((c <em>d</em> e)))) f</em> g]]</p>\n"
+  end
 end
