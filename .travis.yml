@@ -1,4 +1,17 @@
-os: osx
-language: ruby
-rvm:
-  - 2.1.3
+# test against both regular Ruby and RubyMotion
+language: objective-c
+before_install:
+  - (ruby --version)
+  - sudo chown -R travis ~/Library/RubyMotion
+  - sudo mkdir -p ~/Library/RubyMotion/build
+  - sudo chown -R travis ~/Library/RubyMotion/build
+  - sudo motion update
+gemfile:
+  - Gemfile
+script:
+  - bundle install --jobs=3 --retry=3
+  - bundle exec rake spec
+  - cd rubymotion
+  - bundle install --jobs=3 --retry=3
+  - bundle exec rake clean
+  - bundle exec rake spec
