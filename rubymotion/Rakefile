@@ -2,12 +2,11 @@
 $:.unshift("/Library/RubyMotion/lib")
 
 platform = ENV.fetch('platform', 'osx')
+testing  = true if ARGV.join(' ') =~ /spec/
 
 require "motion/project/template/#{platform}"
 require 'rubygems'
 
-testing = true if ARGV.join(' ') =~ /spec/
-  
 begin
   require 'bundler'
   testing ? Bundler.require(:default, :spec) : Bundler.require
