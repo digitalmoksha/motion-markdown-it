@@ -26,17 +26,23 @@ describe 'API' do
     }.to raise_error
   end
 
+  class TestPlugin
+    @success = false
+    def self.init_plugin(md, options)
+      @success = true if (options == 'bar')
+    end
+    def self.success
+      @success
+    end
+  end
+
   #------------------------------------------------------------------------------
   it 'plugin' do
-    @success = false
-    plugin = lambda {|plugin, opts| @success = true if (opts == 'bar') }
-
     md = MarkdownIt::Parser.new
-
-    md.use(plugin, 'foo')
-    expect(@success).to eq false
-    md.use(plugin, 'bar')
-    expect(@success).to eq true
+    md.use(TestPlugin, 'foo')
+    expect(TestPlugin.success).to eq false
+    md.use(TestPlugin, 'bar')
+    expect(TestPlugin.success).to eq true
   end
 
   #------------------------------------------------------------------------------
