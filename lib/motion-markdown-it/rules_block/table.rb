@@ -14,15 +14,21 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.escapedSplit(str)
-        result  = []
-        pos     = 0
-        max     = str.length
-        escapes = 0
-        lastPos = 0
-        ch      = str.charCodeAt(pos)
+        result       = []
+        pos          = 0
+        max          = str.length
+        escapes      = 0
+        lastPos      = 0
+        backTicked   = false
+        lastBackTick = 0
+        
+        ch           = str.charCodeAt(pos)
 
         while (pos < max)
-          if (ch == 0x7c && (escapes % 2 == 0))     # '|'
+          if (ch == 0x60 && (escapes % 2 == 0))  # `
+            backTicked   = !backTicked
+            lastBackTick = pos
+          elsif (ch == 0x7c && (escapes % 2 == 0) && !backTicked)     # '|'
             result.push(str[lastPos...pos])
             lastPos = pos + 1
           elsif (ch == 0x5c)   # '\'
@@ -32,6 +38,12 @@ module MarkdownIt
           end
 
           pos += 1
+          # If there was an un-closed backtick, go back to just after
+          # the last backtick, but as if it was a normal character
+          if (pos == max && backTicked)
+            backTicked = false
+            pos = lastBackTick + 1
+          end
           ch   = str.charCodeAt(pos)
         end
 

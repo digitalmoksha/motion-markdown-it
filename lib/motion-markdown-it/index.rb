@@ -8,8 +8,9 @@ CONFIG = {
 }
 
 #------------------------------------------------------------------------------
-# This validator does not pretend to functionality of full weight sanitizers.
-# It's a tradeoff between default security, simplicity and usability.
+# This validator can prohibit more than really needed to prevent XSS. It's a
+# tradeoff to keep code simple and to be secure by default.
+#
 # If you need different setup - override validator method as you wish. Or
 # replace it with dummy function and use external sanitizer.
 
@@ -151,9 +152,10 @@ module MarkdownIt
     # - __typographer__  - `false`. Set `true` to enable [some language-neutral
     #   replacement](https://github.com/markdown-it/markdown-it/blob/master/lib/rules_core/replacements.js) +
     #   quotes beautification (smartquotes).
-    # - __quotes__ - `“”‘’`, string. Double + single quotes replacement pairs, when
-    #   typographer enabled and smartquotes on. Set doubles to '«»' for Russian,
-    #   '„“' for German.
+    # - __quotes__ - `“”‘’`, String or Array. Double + single quotes replacement
+    #   pairs, when typographer enabled and smartquotes on. For example, you can
+    #   use `'«»„“'` for Russian, `'„“‚‘'` for German, and
+    #   `['«\xA0', '\xA0»', '‹\xA0', '\xA0›']` for French (including nbsp).
     # - __highlight__ - `nil`. Highlighter function for fenced code blocks.
     #   Highlighter `function (str, lang)` should return escaped HTML. It can also
     #   return nil if the source was not changed and should be escaped externaly.
@@ -257,8 +259,10 @@ module MarkdownIt
       # MarkdownIt#validateLink(url) -> Boolean
       #
       # Link validation function. CommonMark allows too much in links. By default
-      # we disable `javascript:` and `vbscript:` schemas. You can change this
-      # behaviour.
+      # we disable `javascript:`, `vbscript:`, `file:` schemas, and almost all `data:...` schemas
+      # except some embedded image types.
+      #
+      # You can change this behaviour:
       #
       # ```javascript
       # var md = require('markdown-it')();

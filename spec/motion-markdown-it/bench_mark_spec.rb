@@ -14,7 +14,7 @@ files.each do |file|
 
   # results = Benchmark.bmbm do |b|
   results = Benchmark.bm do |b|
-    b.report("motion-markdown-it 0.1.0") do
+    b.report("motion-markdown-it #{MotionMarkdownIt::VERSION}") do
       parser = MarkdownIt::Parser.new({ html: true, linkify: true, typographer: true })
       runs.times { parser.render(data) }
     end

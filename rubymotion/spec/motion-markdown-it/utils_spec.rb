@@ -25,7 +25,7 @@ describe 'Utils' do
     expect(assign({ a: 1 }, nil, { b: 2 })).to eq ({ a: 1, b: 2 })
     expect {
       assign({}, 123)
-    }.to raise_error
+    }.to raise_error(StandardError)
   end
 
   #------------------------------------------------------------------------------

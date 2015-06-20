@@ -209,7 +209,7 @@ module MarkdownIt
     # * ```javascript
     # * var md = require('markdown-it')();
     # *
-    # * md.core.ruler.push('emphasis', 'my_rule', function replace(state) {
+    # * md.core.ruler.push('my_rule', function replace(state) {
     # *   //...
     # * });
     # * ```

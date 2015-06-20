@@ -17,6 +17,9 @@ module MarkdownIt
           # it's considered a lazy continuation regardless of what's there
           (nextLine += 1) && next if (state.tShift[nextLine] - state.blkIndent > 3)
 
+          # quirk for blockquotes, this line should already be checked by that rule
+          (nextLine += 1) && next if state.tShift[nextLine] < 0
+
           # Some tags can terminate paragraph without empty line.
           terminate = false
           0.upto(terminatorRules.length - 1) do |i|

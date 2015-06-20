@@ -55,6 +55,8 @@ module MarkdownIt
         #     ```
         nextLine = startLine + 1
         while nextLine < endLine
+          break if state.tShift[nextLine] < oldIndent
+          
           pos = state.bMarks[nextLine] + state.tShift[nextLine]
           max = state.eMarks[nextLine]
 
@@ -104,7 +106,7 @@ module MarkdownIt
           #
           # Any negative number will do the job here, but it's better for it
           # to be large enough to make any bugs obvious.
-          state.tShift[nextLine] = -1337
+          state.tShift[nextLine] = -1
           nextLine += 1
         end
 

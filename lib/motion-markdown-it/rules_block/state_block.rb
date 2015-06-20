@@ -150,7 +150,7 @@ module MarkdownIt
         # Opt: don't use push queue for single line
         if (line + 1) == line_end
           first = @bMarks[line] + [@tShift[line], indent].min
-          last = keepLastLF ? @bMarks[line_end] : @eMarks[line_end - 1]
+          last  = @eMarks[line_end - 1] + (keepLastLF ? 1 : 0)
           return @src.slice(first...last)
         end
 
