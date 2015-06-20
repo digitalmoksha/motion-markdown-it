@@ -10,7 +10,6 @@ require 'rubygems'
 begin
   require 'bundler'
   testing ? Bundler.require(:default, :spec) : Bundler.require
-  require 'bacon-expect' if testing
 rescue LoadError
 end
 
