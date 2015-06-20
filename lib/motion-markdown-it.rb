@@ -10,7 +10,7 @@ if defined?(Motion::Project::Config)
   require 'linkify-it-rb'
   require 'mdurl-rb'
   require 'uc.micro-rb'
-  
+  require 'bacon-expect' if testing  # make sure included in travis build
 else
   
   require 'mdurl-rb'
