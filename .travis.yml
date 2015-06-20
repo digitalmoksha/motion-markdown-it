@@ -1,5 +1,7 @@
 # test against both regular Ruby and RubyMotion
 language: objective-c
+rvm:
+  - 2.1.3
 before_install:
   - (ruby --version)
   - sudo chown -R travis ~/Library/RubyMotion
