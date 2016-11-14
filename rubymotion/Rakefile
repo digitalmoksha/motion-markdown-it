@@ -13,6 +13,8 @@ begin
 rescue LoadError
 end
 
+require 'bacon-expect' if testing
+
 Motion::Project::App.setup do |app|
   app.name        = 'motion-markdown-it'
   app.identifier  = 'com.motion-gemtest.motion-markdown-it'

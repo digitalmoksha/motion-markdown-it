@@ -1,7 +1,21 @@
-4.2.2.0
+4.4.0
 -------
 
-Synced with markdown-it 4.2.2, includes these changes:
+Synced with markdown-it 4.4.0, includes these changes:
+
+
+* 4.4.0 / 2015-07-18
+  - Updated HTML blocks logic to CM 0.21 spec.
+  - Minor fixes.
+
+
+* 4.3.1 / 2015-07-15
+  - Allow numbered lists starting from zero.
+  - Fix class name injection in fence renderer.
+
+
+* 4.3.0 / 2015-06-29
+  - `linkify-it` dependency update (1.2.0). Now accepts dash at the end of links.
 
 * 4.2.2 / 2015-06-10
   - CM spec 0.20.
