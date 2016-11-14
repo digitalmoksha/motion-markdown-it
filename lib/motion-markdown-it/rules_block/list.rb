@@ -32,8 +32,9 @@ module MarkdownIt
       # or -1 on fail.
       #------------------------------------------------------------------------------
       def self.skipOrderedListMarker(state, startLine)
-        pos = state.bMarks[startLine] + state.tShift[startLine]
-        max = state.eMarks[startLine]
+        start = state.bMarks[startLine] + state.tShift[startLine]
+        pos   = start
+        max   = state.eMarks[startLine]
 
         # List marker should have at least 2 chars (digit + dot)
         return -1 if (pos + 1 >= max)
@@ -52,6 +53,11 @@ module MarkdownIt
           pos += 1
 
           if (ch >= 0x30 && ch <= 0x39) #  >= 0 && <= 9
+
+            # List marker should have no more than 9 digits
+            # (prevents integer overflow in browsers)
+            return -1 if pos - start >= 10
+
             next
           end
 
@@ -114,7 +120,7 @@ module MarkdownIt
           start       = state.bMarks[startLine] + state.tShift[startLine]
           markerValue = state.src[start, posAfterMarker - start - 1].to_i
           token       = state.push('ordered_list_open', 'ol', 1)
-          if (markerValue > 1)
+          if (markerValue != 1)
             token.attrs = [ [ 'start', markerValue ] ]
           end
 
