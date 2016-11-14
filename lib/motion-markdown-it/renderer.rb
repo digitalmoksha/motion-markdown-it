@@ -25,10 +25,11 @@ module MarkdownIt
     #------------------------------------------------------------------------------
     def self.fence(tokens, idx, options, env, renderer)
       token     = tokens[idx]
+      info      = token.info ? unescapeAll(token.info).strip : ''
       langName  = ''
 
-      if !token.info.empty?
-        langName = unescapeAll(token.info.strip.split(/\s+/)[0])
+      if !info.empty?
+        langName = info.split(/\s+/)[0]
         token.attrPush([ 'class', options[:langPrefix] + langName ])
       end
 

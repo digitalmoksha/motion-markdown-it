@@ -23,6 +23,8 @@ module MarkdownIt
 
       HTML_TAG_RE     = Regexp.new('^(?:' + OPEN_TAG + '|' + CLOSE_TAG + '|' + COMMENT +
                             '|' + PROCESSING + '|' + DECLARATION + '|' + CDATA + ')')
+
+      HTML_OPEN_CLOSE_TAG_RE = Regexp.new('^(?:' + OPEN_TAG + '|' + CLOSE_TAG + ')')
     end
   end
 end

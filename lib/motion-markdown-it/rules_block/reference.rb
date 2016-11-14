@@ -139,6 +139,19 @@ module MarkdownIt
         end
 
         if (pos < max && str.charCodeAt(pos) != 0x0A)
+          if (title)
+            # garbage at the end of the line after title,
+            # but it could still be a valid reference if we roll back
+            title = ''
+            pos = destEndPos
+            lines = destEndLineNo
+            while (pos < max && str.charCodeAt(pos) == 0x20)  # space
+              pos += 1
+            end
+          end
+        end
+
+        if (pos < max && str.charCodeAt(pos) != 0x0A)
           # garbage at the end of the line
           return false
         end

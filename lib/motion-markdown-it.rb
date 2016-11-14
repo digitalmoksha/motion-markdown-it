@@ -10,7 +10,6 @@ if defined?(Motion::Project::Config)
   require 'linkify-it-rb'
   require 'mdurl-rb'
   require 'uc.micro-rb'
-  require 'bacon-expect' if ENV.fetch('TRAVIS') == 'true'  # make sure included in travis build
 
 else
   
