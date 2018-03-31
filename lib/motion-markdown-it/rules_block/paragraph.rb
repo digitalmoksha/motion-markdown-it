@@ -15,10 +15,10 @@ module MarkdownIt
         while nextLine < endLine && !state.isEmpty(nextLine)
           # this would be a code block normally, but after paragraph
           # it's considered a lazy continuation regardless of what's there
-          (nextLine += 1) && next if (state.tShift[nextLine] - state.blkIndent > 3)
+          (nextLine += 1) && next if (state.sCount[nextLine] - state.blkIndent > 3)
 
           # quirk for blockquotes, this line should already be checked by that rule
-          (nextLine += 1) && next if state.tShift[nextLine] < 0
+          (nextLine += 1) && next if state.sCount[nextLine] < 0
 
           # Some tags can terminate paragraph without empty line.
           terminate = false

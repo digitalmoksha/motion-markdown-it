@@ -33,6 +33,7 @@ module MarkdownIt
     'header',
     'hr',
     'html',
+    'iframe',
     'legend',
     'li',
     'link',

@@ -30,11 +30,15 @@ module MarkdownIt
           if (!silent)
             token         = state.push('link_open', 'a', 1)
             token.attrs   = [ [ 'href', fullUrl ] ]
+            token.markup  = 'autolink'
+            token.info    = 'auto'
 
             token         = state.push('text', '', 0)
             token.content = state.md.normalizeLinkText.call(url)
 
             token         = state.push('link_close', 'a', -1)
+            token.markup  = 'autolink'
+            token.info    = 'auto'
           end
 
           state.pos += linkMatch[0].length

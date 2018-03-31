@@ -9,11 +9,11 @@ module MarkdownIt
         nextLine = startLine + 1
 
         return false if (nextLine >= endLine)
-        return false if (state.tShift[nextLine] < state.blkIndent)
+        return false if (state.sCount[nextLine] < state.blkIndent)
 
         # Scan next line
 
-        return false if (state.tShift[nextLine] - state.blkIndent > 3)
+        return false if (state.sCount[nextLine] - state.blkIndent > 3)
 
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         max = state.eMarks[nextLine]

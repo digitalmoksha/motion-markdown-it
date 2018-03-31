@@ -121,34 +121,6 @@ baz|baz
 .
 
 
-Nested tables inside lists:
-.
--   foo|foo
-    ---|---
-    bar|bar
-   baz|baz
-.
-<ul>
-<li>
-<table>
-<thead>
-<tr>
-<th>foo</th>
-<th>foo</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>bar</td>
-<td>bar</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<p>baz|baz</p>
-.
-
 Minimal one-column:
 .
 | foo
@@ -170,17 +142,26 @@ Minimal one-column:
 .
 
 
-Second line indent should not be smaller than first:
+This is parsed as one big table:
 .
 -   foo|foo
 ---|---
 bar|bar
 .
-<ul>
-<li>foo|foo
-—|---
-bar|bar</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>-   foo</th>
+<th>foo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bar</td>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
 .
 
 
@@ -240,18 +221,6 @@ bar|bar
 .
 <p>foo
 —|---
-bar|bar</p>
-.
-
-
-Title line should have correct column count:
-.
-foo|foo
----|---|---
-bar|bar
-.
-<p>foo|foo
-—|---|—
 bar|bar</p>
 .
 
@@ -409,31 +378,94 @@ Another complicated backticks case
 .
 
 
-Add/remove columns to match the first row:
+Should be parsed before code blocks:
 .
-Heading 1|Heading 2|Heading 3
----|---|---
-1|2
-1|2|3|4
+    foo | bar
+  ----- | -----
+    aaa | bbb
 .
 <table>
 <thead>
 <tr>
-<th>Heading 1</th>
-<th>Heading 2</th>
-<th>Heading 3</th>
+<th>foo</th>
+<th>bar</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td>2</td>
-<td></td>
+<td>aaa</td>
+<td>bbb</td>
 </tr>
+</tbody>
+</table>
+.
+
+
+An amount of rows might be different across the table (issue #171):
+.
+| 1 | 2 |
+| :-----: |  :-----: |  :-----: |
+| 3 | 4 | 5 | 6 |
+.
+<table>
+<thead>
 <tr>
-<td>1</td>
-<td>2</td>
-<td>3</td>
+<th style="text-align:center">1</th>
+<th style="text-align:center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">4</td>
+</tr>
+</tbody>
+</table>
+.
+
+
+An amount of rows might be different across the table #2:
+.
+| 1 | 2 | 3 | 4 |
+| :-----: |  :-----: |  :-----: |  :-----: |
+| 5 | 6 |
+.
+<table>
+<thead>
+<tr>
+<th style="text-align:center">1</th>
+<th style="text-align:center">2</th>
+<th style="text-align:center">3</th>
+<th style="text-align:center">4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+.
+
+
+Allow one-column tables (issue #171):
+.
+| foo |
+:-----:
+| bar |
+.
+<table>
+<thead>
+<tr>
+<th style="text-align:center">foo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">bar</td>
 </tr>
 </tbody>
 </table>

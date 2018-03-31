@@ -7,10 +7,11 @@ module MarkdownIt
   class ParserBlock
 
     attr_accessor   :ruler
-    
+
     RULES = [
       # First 2 params - rule name & source. Secondary array - list of rules,
       # which can be terminated by this one.
+      [ 'table',        lambda { |state, startLine, endLine, silent| RulesBlock::Table.table(state, startLine, endLine, silent) },      [ 'paragraph', 'reference' ] ],
       [ 'code',         lambda { |state, startLine, endLine, silent| RulesBlock::Code.code(state, startLine, endLine, silent) } ],
       [ 'fence',        lambda { |state, startLine, endLine, silent| RulesBlock::Fence.fence(state, startLine, endLine, silent) },      [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
       [ 'blockquote',   lambda { |state, startLine, endLine, silent| RulesBlock::Blockquote.blockquote(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'list' ] ],
@@ -20,7 +21,6 @@ module MarkdownIt
       [ 'heading',      lambda { |state, startLine, endLine, silent| RulesBlock::Heading.heading(state, startLine, endLine, silent) },    [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'lheading',     lambda { |state, startLine, endLine, silent| RulesBlock::Lheading.lheading(state, startLine, endLine, silent) } ],
       [ 'html_block',   lambda { |state, startLine, endLine, silent| RulesBlock::HtmlBlock.html_block(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'blockquote' ] ],
-      [ 'table',        lambda { |state, startLine, endLine, silent| RulesBlock::Table.table(state, startLine, endLine, silent) },      [ 'paragraph', 'reference' ] ],
       [ 'paragraph',    lambda { |state, startLine, endLine, silent| RulesBlock::Paragraph.paragraph(state, startLine) } ]
     ]
 
@@ -47,14 +47,14 @@ module MarkdownIt
       line          = startLine
       hasEmptyLines = false
       maxNesting    = state.md.options[:maxNesting]
-      
+
       while line < endLine
         state.line = line = state.skipEmptyLines(line)
         break if line >= endLine
 
         # Termination condition for nested calls.
         # Nested calls currently used for blockquotes & lists
-        break if state.tShift[line] < state.blkIndent
+        break if state.sCount[line] < state.blkIndent
 
         # If nesting level exceeded - skip tail to the end. That's not ordinary
         # situation and we should not care about content.

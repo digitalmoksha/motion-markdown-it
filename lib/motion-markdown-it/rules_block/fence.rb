@@ -47,7 +47,7 @@ module MarkdownIt
           pos = mem = state.bMarks[nextLine] + state.tShift[nextLine]
           max = state.eMarks[nextLine];
 
-          if pos < max && state.tShift[nextLine] < state.blkIndent
+          if pos < max && state.sCount[nextLine] < state.blkIndent
             # non-empty line with negative indent should stop the list:
             # - ```
             #  test
@@ -56,7 +56,7 @@ module MarkdownIt
 
           next if state.src.charCodeAt(pos) != marker
 
-          if state.tShift[nextLine] - state.blkIndent >= 4
+          if state.sCount[nextLine] - state.blkIndent >= 4
             # closing fence should be indented less than 4 spaces
             next
           end
@@ -77,7 +77,8 @@ module MarkdownIt
         end
 
         # If a fence has heading spaces, they should be removed from its inner block
-        len           = state.tShift[startLine]
+        len           = state.sCount[startLine]
+
         state.line    = nextLine + (haveEndMarker ? 1 : 0)
 
         token         = state.push('fence', 'code', 0)

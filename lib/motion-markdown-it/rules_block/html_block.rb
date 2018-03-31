@@ -25,7 +25,7 @@ module MarkdownIt
         max   = state.eMarks[startLine]
 
         return false if !state.md.options[:html]
-        return false if state.src.charCodeAt(pos) != 0x3C    # < 
+        return false if state.src.charCodeAt(pos) != 0x3C    # <
 
         lineText = state.src.slice(pos...max)
 
@@ -34,7 +34,7 @@ module MarkdownIt
           break if HTML_SEQUENCES[i][0].match(lineText)
           i += 1
         end
-        
+
         return false if i == HTML_SEQUENCES.length
 
         if silent
@@ -48,7 +48,7 @@ module MarkdownIt
         # Let's roll down till block end.
         if !HTML_SEQUENCES[i][1].match(lineText)
           while nextLine < endLine
-            break if state.tShift[nextLine] < state.blkIndent
+            break if state.sCount[nextLine] < state.blkIndent
 
             pos = state.bMarks[nextLine] + state.tShift[nextLine]
             max = state.eMarks[nextLine]

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 if defined?(Motion::Project::Config)
-  
+
   lib_dir_path = File.dirname(File.expand_path(__FILE__))
   Motion::Project::App.setup do |app|
     app.files.unshift(Dir.glob(File.join(lib_dir_path, "motion-markdown-it/**/*.rb")))
@@ -12,7 +12,7 @@ if defined?(Motion::Project::Config)
   require 'uc.micro-rb'
 
 else
-  
+
   require 'mdurl-rb'
   require 'uc.micro-rb'
   require 'linkify-it-rb'
@@ -55,6 +55,7 @@ else
   require 'motion-markdown-it/rules_block/table'
   require 'motion-markdown-it/rules_inline/autolink'
   require 'motion-markdown-it/rules_inline/backticks'
+  require 'motion-markdown-it/rules_inline/balance_pairs'
   require 'motion-markdown-it/rules_inline/emphasis'
   require 'motion-markdown-it/rules_inline/entity'
   require 'motion-markdown-it/rules_inline/escape'
@@ -64,10 +65,11 @@ else
   require 'motion-markdown-it/rules_inline/newline'
   require 'motion-markdown-it/rules_inline/state_inline'
   require 'motion-markdown-it/rules_inline/strikethrough'
+  require 'motion-markdown-it/rules_inline/text_collapse'
   require 'motion-markdown-it/rules_inline/text'
-  
+
   require 'motion-markdown-it/ruler'
   require 'motion-markdown-it/token'
   require 'motion-markdown-it/index'
-  
+
 end

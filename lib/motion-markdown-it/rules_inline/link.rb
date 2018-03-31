@@ -34,7 +34,7 @@ module MarkdownIt
           pos += 1
           while pos < max
             code = state.src.charCodeAt(pos)
-            break if (code != 0x20 && code != 0x0A)
+            break if (!isSpace(code) && code != 0x0A)
             pos += 1
           end
           return false if (pos >= max)
@@ -57,7 +57,7 @@ module MarkdownIt
           start = pos
           while pos < max
             code = state.src.charCodeAt(pos)
-            break if (code != 0x20 && code != 0x0A)
+            break if (!isSpace(code) && code != 0x0A)
             pos += 1
           end
 
@@ -72,7 +72,7 @@ module MarkdownIt
             #                         ^^ skipping these spaces
             while pos < max
               code = state.src.charCodeAt(pos)
-              break if (code != 0x20 && code != 0x0A)
+              break if (!isSpace(code) && code != 0x0A)
               pos += 1
             end
           else
@@ -94,7 +94,7 @@ module MarkdownIt
           #      ^^ optional whitespace (can include newlines)
           while pos < max
             code = state.src.charCodeAt(pos);
-            break if (code != 0x20 && code != 0x0A)
+            break if (!isSpace(code) && code != 0x0A)
             pos += 1
           end
 

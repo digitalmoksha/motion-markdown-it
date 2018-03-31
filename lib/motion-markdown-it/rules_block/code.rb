@@ -6,7 +6,7 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.code(state, startLine, endLine, silent = true)
-        return false if (state.tShift[startLine] - state.blkIndent < 4)
+        return false if (state.sCount[startLine] - state.blkIndent < 4)
 
         last = nextLine = startLine + 1
         while nextLine < endLine
@@ -14,7 +14,7 @@ module MarkdownIt
             nextLine += 1
             next
           end
-          if (state.tShift[nextLine] - state.blkIndent >= 4)
+          if (state.sCount[nextLine] - state.blkIndent >= 4)
             nextLine += 1
             last = nextLine
             next

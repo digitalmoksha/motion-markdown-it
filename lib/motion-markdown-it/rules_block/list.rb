@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class List
+      extend Common::Utils
 
       # Search `[-+*][\n ]`, returns next pos arter marker on success
       # or -1 on fail.
@@ -20,9 +21,13 @@ module MarkdownIt
           return -1
         end
 
-        if (pos < max && state.src.charCodeAt(pos) != 0x20)
-          # " 1.test " - is not a list item
-          return -1
+        if pos < max
+          ch = state.src.charCodeAt(pos)
+
+          if !isSpace(ch)
+            # " -test " - is not a list item
+            return -1
+          end
         end
 
         return pos
@@ -69,10 +74,13 @@ module MarkdownIt
           return -1
         end
 
+        if pos < max
+          ch = state.src.charCodeAt(pos)
 
-        if (pos < max && state.src.charCodeAt(pos) != 0x20) # space
-          # " 1.test " - is not a list item
-          return -1
+          if !isSpace(ch)
+            # " 1.test " - is not a list item
+            return -1
+          end
         end
         return pos
       end
@@ -80,7 +88,7 @@ module MarkdownIt
       #------------------------------------------------------------------------------
       def self.markTightParagraphs(state, idx)
         level = state.level + 2
-        
+
         i = idx + 2
         l =  state.tokens.length
         while i < l
@@ -92,7 +100,6 @@ module MarkdownIt
           i += 1
         end
       end
-
 
       #------------------------------------------------------------------------------
       def self.list(state, startLine, endLine, silent)
@@ -140,14 +147,34 @@ module MarkdownIt
         terminatorRules = state.md.block.ruler.getRules('list')
 
         while (nextLine < endLine)
-          contentStart = state.skipSpaces(posAfterMarker)
+          pos          = posAfterMarker
           max          = state.eMarks[nextLine]
+
+          initial = offset = state.sCount[nextLine] + posAfterMarker - (state.bMarks[startLine] + state.tShift[startLine])
+
+          while pos < max
+            ch = state.src.charCodeAt(pos)
+
+            if isSpace(ch)
+              if ch == 0x09
+                offset += 4 - offset % 4
+              else
+                offset += 1
+              end
+            else
+              break
+            end
+
+            pos += 1
+          end
+
+          contentStart = pos
 
           if (contentStart >= max)
             # trimming space in "-    \n  3" case, indent is 1 here
             indentAfterMarker = 1
           else
-            indentAfterMarker = contentStart - posAfterMarker
+            indentAfterMarker = offset - initial
           end
 
           # If we have more than 4 spaces, the indent is 1
@@ -156,7 +183,7 @@ module MarkdownIt
 
           # "  -  test"
           #  ^^^^^ - calculating total length of this thing
-          indent = (posAfterMarker - state.bMarks[nextLine]) + indentAfterMarker
+          indent = initial + indentAfterMarker
 
           # Run subparser & write tokens
           token        = state.push('list_item_open', 'li', 1)
@@ -166,11 +193,13 @@ module MarkdownIt
           oldIndent               = state.blkIndent
           oldTight                = state.tight
           oldTShift               = state.tShift[startLine]
+          oldLIndent              = state.sCount[startLine]
           oldParentType           = state.parentType
-          state.tShift[startLine] = contentStart - state.bMarks[startLine]
           state.blkIndent         = indent
           state.tight             = true
           state.parentType        = 'list'
+          state.tShift[startLine] = contentStart - state.bMarks[startLine]
+          state.sCount[startLine] = offset
 
           state.md.block.tokenize(state, startLine, endLine, true)
 
@@ -184,6 +213,7 @@ module MarkdownIt
 
           state.blkIndent         = oldIndent
           state.tShift[startLine] = oldTShift
+          state.sCount[startLine] = oldLIndent
           state.tight             = oldTight
           state.parentType        = oldParentType
 
@@ -200,7 +230,7 @@ module MarkdownIt
           #
           # Try to check if list is terminated or continued.
           #
-          break if (state.tShift[nextLine] < state.blkIndent)
+          break if (state.sCount[nextLine] < state.blkIndent)
 
           # fail if terminating block found
           terminate = false

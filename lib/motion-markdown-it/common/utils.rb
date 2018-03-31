@@ -63,7 +63,7 @@ module MarkdownIt
       def replaceEntityPattern(match, name)
         code = 0
 
-        return HTMLEntities::MAPPINGS[name].chr(Encoding::UTF_8) if HTMLEntities::MAPPINGS[name]
+        return fromCodePoint(HTMLEntities::MAPPINGS[name]) if HTMLEntities::MAPPINGS[name]
 
         if (name.charCodeAt(0) == 0x23 && DIGITAL_ENTITY_TEST_RE =~ name) # '#'
           code = name[1].downcase == 'x' ? name.slice_to_end(2).to_i(16) : name.slice_to_end(1).to_i
@@ -116,6 +116,16 @@ module MarkdownIt
         str.gsub(REGEXP_ESCAPE_RE) {|s| '\\' + s}
       end
 
+      #------------------------------------------------------------------------------
+      def isSpace(code)
+        case code
+        when 0x09,
+             0x20
+          return true
+        end
+
+        return false
+      end
 
       # Zs (unicode class) || [\t\f\v\r\n]
       #------------------------------------------------------------------------------
@@ -142,13 +152,13 @@ module MarkdownIt
 
       # Currently without astral characters support.
       #------------------------------------------------------------------------------
-      def isPunctChar(char)
-        return UNICODE_PUNCT_RE =~ char
+      def isPunctChar(ch)
+        return UNICODE_PUNCT_RE =~ ch
       end
 
 
       # Markdown ASCII punctuation characters.
-      # 
+      #
       # !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, :, ;, <, =, >, ?, @, [, \, ], ^, _, `, {, |, }, or ~
       # http://spec.commonmark.org/0.15/#ascii-punctuation-character
       #

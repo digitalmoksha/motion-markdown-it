@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class Blockquote
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.blockquote(state, startLine, endLine, silent)
@@ -12,23 +13,43 @@ module MarkdownIt
         # check the block quote marker
         return false if state.src.charCodeAt(pos) != 0x3E # >
         pos += 1
-        
+
         # we know that it's going to be a valid blockquote,
         # so no point trying to find the end of it in silent mode
         return true if silent
 
-        # skip one optional space after '>'
+        # skip one optional space (but not tab, check cmark impl) after '>'
         pos += 1 if state.src.charCodeAt(pos) == 0x20
 
         oldIndent               = state.blkIndent
         state.blkIndent         = 0
 
+        # skip spaces after ">" and re-calculate offset
+        initial = offset = state.sCount[startLine] + pos - (state.bMarks[startLine] + state.tShift[startLine])
+
         oldBMarks               = [ state.bMarks[startLine] ]
         state.bMarks[startLine] = pos
 
-        # check if we have an empty blockquote
-        pos                     = pos < max ? state.skipSpaces(pos) : pos
-        lastLineEmpty           = pos >= max
+        while pos < max
+          ch = state.src.charCodeAt(pos)
+
+          if isSpace(ch)
+            if ch == 0x09
+              offset += 4 - offset % 4
+            else
+              offset += 1
+            end
+          else
+            break
+          end
+
+          pos += 1
+        end
+
+        lastLineEmpty = pos >= max
+
+        oldSCount = [ state.sCount[startLine] ]
+        state.sCount[startLine] = offset - initial
 
         oldTShift               = [ state.tShift[startLine] ]
         state.tShift[startLine] = pos - state.bMarks[startLine]
@@ -55,8 +76,8 @@ module MarkdownIt
         #     ```
         nextLine = startLine + 1
         while nextLine < endLine
-          break if state.tShift[nextLine] < oldIndent
-          
+          break if state.sCount[nextLine] < oldIndent
+
           pos = state.bMarks[nextLine] + state.tShift[nextLine]
           max = state.eMarks[nextLine]
 
@@ -69,14 +90,35 @@ module MarkdownIt
             pos += 1
             # This line is inside the blockquote.
 
-            # skip one optional space after '>'
+            # skip one optional space (but not tab, check cmark impl) after '>'
             pos += 1 if state.src.charCodeAt(pos) == 0x20
+
+            # skip spaces after ">" and re-calculate offset
+            initial = offset = state.sCount[nextLine] + pos - (state.bMarks[nextLine] + state.tShift[nextLine])
 
             oldBMarks.push(state.bMarks[nextLine])
             state.bMarks[nextLine] = pos
 
-            pos = pos < max ? state.skipSpaces(pos) : pos
+            while pos < max
+              ch = state.src.charCodeAt(pos)
+
+              if isSpace(ch)
+                if ch == 0x09
+                  offset += 4 - offset % 4
+                else
+                  offset += 1
+                end
+              else
+                break
+              end
+
+              pos += 1
+            end
+
             lastLineEmpty = pos >= max
+
+            oldSCount.push(state.sCount[nextLine])
+            state.sCount[nextLine] = offset - initial\
 
             oldTShift.push(state.tShift[nextLine])
             state.tShift[nextLine] = pos - state.bMarks[nextLine]
@@ -101,12 +143,11 @@ module MarkdownIt
 
           oldBMarks.push(state.bMarks[nextLine])
           oldTShift.push(state.tShift[nextLine])
+          oldSCount.push(state.sCount[nextLine])
 
-          # A negative number means that this is a paragraph continuation
+          # A negative indentation means that this is a paragraph continuation
           #
-          # Any negative number will do the job here, but it's better for it
-          # to be large enough to make any bugs obvious.
-          state.tShift[nextLine] = -1
+          state.sCount[nextLine] = -1
           nextLine += 1
         end
 
@@ -130,6 +171,7 @@ module MarkdownIt
         (0...oldTShift.length).each do |i|
           state.bMarks[i + startLine] = oldBMarks[i]
           state.tShift[i + startLine] = oldTShift[i]
+          state.sCount[i + startLine] = oldSCount[i]
         end
         state.blkIndent = oldIndent
         return true

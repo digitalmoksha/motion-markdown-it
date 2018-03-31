@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class Hr
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.hr(state, startLine, endLine, silent)
@@ -18,18 +19,18 @@ module MarkdownIt
           return false
         end
 
-        # markers can be mixed with spaces, but there should be at least 3 one
+        # markers can be mixed with spaces, but there should be at least 3 of them
 
         cnt = 1
         while (pos < max)
           ch   = state.src.charCodeAt(pos)
           pos += 1
-          return false if (ch != marker && ch != 0x20) # space
-          cnt += 1 if (ch == marker)
+          return false if ch != marker && !isSpace(ch)
+          cnt += 1 if ch == marker
         end
 
-        return false if (cnt < 3)
-        return true if (silent)
+        return false if cnt < 3
+        return true if silent
 
         state.line = startLine + 1
 

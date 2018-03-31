@@ -21,7 +21,7 @@ module MarkdownIt
         lastPos      = 0
         backTicked   = false
         lastBackTick = 0
-        
+
         ch           = str.charCodeAt(pos)
 
         while (pos < max)
@@ -60,7 +60,7 @@ module MarkdownIt
 
         nextLine = startLine + 1
 
-        return false if (state.tShift[nextLine] < state.blkIndent)
+        return false if (state.sCount[nextLine] < state.blkIndent)
 
         # first character of the second line should be '|' or '-'
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
@@ -72,15 +72,14 @@ module MarkdownIt
         lineText = getLine(state, startLine + 1)
         return false if (/^[-:| ]+$/ =~ lineText).nil?
 
-        rows = lineText.split('|')
-        return false if (rows.length < 2)
+        columns = lineText.split('|')
         aligns = []
-        (0...rows.length).each do |i|
-          t = rows[i].strip
+        (0...columns.length).each do |i|
+          t = columns[i].strip
           if t.empty?
             # allow empty columns before and after table, but not in between columns
             # e.g. allow ` |---| `, disallow ` ---||--- `
-            if (i == 0 || i == rows.length - 1)
+            if (i == 0 || i == columns.length - 1)
               next
             else
               return false
@@ -99,8 +98,13 @@ module MarkdownIt
 
         lineText = getLine(state, startLine).strip
         return false if !lineText.include?('|')
-        rows = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
-        return false if (aligns.length != rows.length)
+        columns = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
+
+        # header row will define an amount of columns in the entire table,
+        # and align row shouldn't be smaller than that (the rest of the rows can)
+        columnCount = columns.length
+        return false if columnCount > aligns.length
+
         return true  if silent
 
         token     = state.push('table_open', 'table', 1)
@@ -112,7 +116,7 @@ module MarkdownIt
         token     = state.push('tr_open', 'tr', 1)
         token.map = [ startLine, startLine + 1 ]
 
-        (0...rows.length).each do |i|
+        (0...columns.length).each do |i|
           token          = state.push('th_open', 'th', 1)
           token.map      = [ startLine, startLine + 1 ]
           unless aligns[i].empty?
@@ -120,7 +124,7 @@ module MarkdownIt
           end
 
           token          = state.push('inline', '', 0)
-          token.content  = rows[i].strip
+          token.content  = columns[i].strip
           token.map      = [ startLine, startLine + 1 ]
           token.children = []
 
@@ -135,24 +139,21 @@ module MarkdownIt
 
         nextLine = startLine + 2
         while nextLine < endLine
-          break if (state.tShift[nextLine] < state.blkIndent)
+          break if (state.sCount[nextLine] < state.blkIndent)
 
           lineText = getLine(state, nextLine).strip
           break if !lineText.include?('|')
-          rows = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
-
-          # set number of columns to number of columns in header row
-          rows_length = aligns.length
+          columns = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
 
           token = state.push('tr_open', 'tr', 1)
-          (0...rows_length).each do |i|
+          (0...columnCount).each do |i|
             token          = state.push('td_open', 'td', 1)
             unless aligns[i].empty?
               token.attrs  = [ [ 'style', 'text-align:' + aligns[i] ] ]
             end
 
             token          = state.push('inline', '', 0)
-            token.content  = rows[i] ? rows[i].strip : ''
+            token.content  = columns[i] ? columns[i].strip : ''
             token.children = []
 
             token          = state.push('td_close', 'td', -1)

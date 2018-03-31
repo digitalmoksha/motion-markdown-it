@@ -111,7 +111,38 @@ module MarkdownIt
         @attrs = [ attrData ]
       end
     end
-    
+
+    # Token.attrSet(name, value)
+    #
+    # Set `name` attribute to `value`. Override old value if exists.
+    #------------------------------------------------------------------------------
+    def attrSet(name, value)
+      idx      = attrIndex(name)
+      attrData = [ name, value ]
+
+      if idx < 0
+        attrPush(attrData)
+      else
+        @attrs[idx] = attrData
+      end
+    end
+
+
+    # Token.attrJoin(name, value)
+    #
+    # Join value to existing attribute via space. Or create new attribute if not
+    # exists. Useful to operate with token classes.
+    #------------------------------------------------------------------------------
+    def attrJoin(name, value)
+      idx = attrIndex(name)
+
+      if idx < 0
+        attrPush([ name, value ])
+      else
+        @attrs[idx][1] = @attrs[idx][1] + ' ' + value
+      end
+    end
+
     #------------------------------------------------------------------------------
     def to_json
       {

@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class Heading
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.heading(state, startLine, endLine, silent)
@@ -28,9 +29,9 @@ module MarkdownIt
 
         # Let's cut tails like '    ###  ' from the end of string
 
-        max = state.skipCharsBack(max, 0x20, pos) # space
+        max = state.skipSpacesBack(max, pos)
         tmp = state.skipCharsBack(max, 0x23, pos) # '#'
-        if (tmp > pos && state.src.charCodeAt(tmp - 1) == 0x20)   # space
+        if (tmp > pos && isSpace(state.src.charCodeAt(tmp - 1)))
           max = tmp
         end
 

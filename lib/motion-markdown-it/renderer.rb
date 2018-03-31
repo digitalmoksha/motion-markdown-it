@@ -10,7 +10,7 @@ module MarkdownIt
     extend  MarkdownIt::Common::Utils
 
     attr_accessor   :rules
-    
+
     # Default Rules
     #------------------------------------------------------------------------------
     def self.code_inline(tokens, idx)
@@ -30,7 +30,7 @@ module MarkdownIt
 
       if !info.empty?
         langName = info.split(/\s+/)[0]
-        token.attrPush([ 'class', options[:langPrefix] + langName ])
+        token.attrJoin('class', options[:langPrefix] + langName)
       end
 
       if options[:highlight]
@@ -39,7 +39,11 @@ module MarkdownIt
         highlighted = escapeHtml(token.content)
       end
 
-      return  '<pre><code' + renderer.renderAttrs(token) + '>' + highlighted + "</code></pre>\n"
+      if highlighted.start_with?('<pre')
+        return highlighted + "\n"
+      end
+
+      return '<pre><code' + renderer.renderAttrs(token) + '>' + highlighted + "</code></pre>\n"
     end
 
     #------------------------------------------------------------------------------
@@ -94,7 +98,7 @@ module MarkdownIt
         'html_block'  => lambda {|tokens, idx, options, env, renderer| Renderer.html_block(tokens, idx)},
         'html_inline' => lambda {|tokens, idx, options, env, renderer| Renderer.html_inline(tokens, idx)}
       }
-      
+
       # Renderer#rules -> Object
       #
       # Contains render rules for tokens. Can be updated and extended.
@@ -220,7 +224,7 @@ module MarkdownIt
 
       0.upto(tokens.length - 1) do |i|
         type = tokens[i].type
-        
+
         if rules[type] != nil
           result += rules[type].call(tokens, i, options, env, self)
         else

@@ -4,7 +4,7 @@ module MarkdownIt
       extend Helpers::ParseLinkDestination
       extend Helpers::ParseLinkTitle
       extend Common::Utils
-      
+
       #------------------------------------------------------------------------------
       def self.reference(state, startLine, _endLine, silent)
         lines    = 0
@@ -35,10 +35,10 @@ module MarkdownIt
         while nextLine < endLine && !state.isEmpty(nextLine)
           # this would be a code block normally, but after paragraph
           # it's considered a lazy continuation regardless of what's there
-          (nextLine += 1) && next if (state.tShift[nextLine] - state.blkIndent > 3)
+          (nextLine += 1) && next if (state.sCount[nextLine] - state.blkIndent > 3)
 
           # quirk for blockquotes, this line should already be checked by that rule
-          (nextLine += 1) && next if state.tShift[nextLine] < 0
+          (nextLine += 1) && next if state.sCount[nextLine] < 0
 
           # Some tags can terminate paragraph without empty line.
           terminate = false
@@ -59,7 +59,7 @@ module MarkdownIt
         pos = 1
         while pos < max
           ch = str.charCodeAt(pos)
-          if (ch == 0x5B ) # [ 
+          if (ch == 0x5B ) # [
             return false
           elsif (ch == 0x5D) # ]
             labelEnd = pos
@@ -84,7 +84,7 @@ module MarkdownIt
           ch = str.charCodeAt(pos)
           if (ch == 0x0A)
             lines += 1
-          elsif (ch == 0x20)
+          elsif isSpace(ch)
           else
             break
           end
@@ -113,7 +113,7 @@ module MarkdownIt
           ch = str.charCodeAt(pos)
           if (ch == 0x0A)
             lines += 1
-          elsif (ch == 0x20)
+          elsif isSpace(ch)
           else
             break
           end
@@ -134,7 +134,9 @@ module MarkdownIt
         end
 
         # skip trailing spaces until the rest of the line
-        while (pos < max && str.charCodeAt(pos) == 0x20)  # space
+        while pos < max
+          ch = str.charCodeAt(pos)
+          break if !isSpace(ch)
           pos += 1
         end
 
@@ -145,7 +147,9 @@ module MarkdownIt
             title = ''
             pos = destEndPos
             lines = destEndLineNo
-            while (pos < max && str.charCodeAt(pos) == 0x20)  # space
+            while pos < max
+              ch = str.charCodeAt(pos)
+              break if !isSpace(ch)
               pos += 1
             end
           end

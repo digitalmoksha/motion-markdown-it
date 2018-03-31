@@ -3,9 +3,10 @@
 module MarkdownIt
   module RulesInline
     class StateInline
+      include MarkdownIt::Common::Utils
 
       attr_accessor   :src, :env, :md, :tokens, :pos, :posMax, :level
-      attr_accessor   :pending, :pendingLevel, :cache
+      attr_accessor   :pending, :pendingLevel, :cache, :delimiters
 
       #------------------------------------------------------------------------------
       def initialize(src, md, env, outTokens)
@@ -22,6 +23,7 @@ module MarkdownIt
 
         @cache        = {}      # Stores { start: end } pairs. Useful for backtrack
                                 # optimization of pairs parse (emphasis, strikes).
+        @delimiters   = []
       end
 
 
@@ -52,6 +54,63 @@ module MarkdownIt
         return token
       end
 
+      # Scan a sequence of emphasis-like markers, and determine whether
+      # it can start an emphasis sequence or end an emphasis sequence.
+      #
+      #  - start - position to scan from (it should point at a valid marker);
+      #  - canSplitWord - determine if these markers can be found inside a word
+      #------------------------------------------------------------------------------
+      def scanDelims(start, canSplitWord)
+        pos            = start
+        left_flanking  = true
+        right_flanking = true
+        max            = @posMax
+        marker         = @src.charCodeAt(start)
+
+        # treat beginning of the line as a whitespace
+        lastChar = start > 0 ? @src.charCodeAt(start - 1) : 0x20
+
+        while (pos < max && @src.charCodeAt(pos) == marker)
+          pos += 1
+        end
+
+        count = pos - start
+
+        # treat end of the line as a whitespace
+        nextChar = pos < max ? @src.charCodeAt(pos) : 0x20
+
+        isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(fromCodePoint(lastChar))
+        isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(fromCodePoint(nextChar))
+
+        isLastWhiteSpace = isWhiteSpace(lastChar)
+        isNextWhiteSpace = isWhiteSpace(nextChar)
+
+        if (isNextWhiteSpace)
+          left_flanking = false
+        elsif (isNextPunctChar)
+          if (!(isLastWhiteSpace || isLastPunctChar))
+            left_flanking = false
+          end
+        end
+
+        if isLastWhiteSpace
+          right_flanking = false
+        elsif isLastPunctChar
+          if !(isNextWhiteSpace || isNextPunctChar)
+            right_flanking = false
+          end
+        end
+
+        if !canSplitWord
+          can_open  = left_flanking  && (!right_flanking || isLastPunctChar)
+          can_close = right_flanking && (!left_flanking  || isNextPunctChar)
+        else
+          can_open  = left_flanking
+          can_close = right_flanking
+        end
+
+        return { can_open: can_open, can_close: can_close, length: count }
+      end
     end
   end
 end

@@ -5,9 +5,9 @@
 #------------------------------------------------------------------------------
 module MarkdownIt
   class ParserInline
-    
-    attr_accessor   :ruler
-    
+
+    attr_accessor   :ruler, :ruler2
+
     #------------------------------------------------------------------------------
     # Parser rules
 
@@ -16,8 +16,8 @@ module MarkdownIt
       [ 'newline',         lambda { |state, startLine| RulesInline::Newline.newline(state, startLine) } ],
       [ 'escape',          lambda { |state, startLine| RulesInline::Escape.escape(state, startLine) } ],
       [ 'backticks',       lambda { |state, startLine| RulesInline::Backticks.backtick(state, startLine) } ],
-      [ 'strikethrough',   lambda { |state, startLine| RulesInline::Strikethrough.strikethrough(state, startLine) } ],
-      [ 'emphasis',        lambda { |state, startLine| RulesInline::Emphasis.emphasis(state, startLine) } ],
+      [ 'strikethrough',   lambda { |state, silent|    RulesInline::Strikethrough.tokenize(state, silent) } ],
+      [ 'emphasis',        lambda { |state, silent|    RulesInline::Emphasis.tokenize(state, silent) } ],
       [ 'link',            lambda { |state, startLine| RulesInline::Link.link(state, startLine) } ],
       [ 'image',           lambda { |state, startLine| RulesInline::Image.image(state, startLine) } ],
       [ 'autolink',        lambda { |state, startLine| RulesInline::Autolink.autolink(state, startLine) } ],
@@ -25,6 +25,12 @@ module MarkdownIt
       [ 'entity',          lambda { |state, startLine| RulesInline::Entity.entity(state, startLine) } ],
     ]
 
+    RULES2 = [
+      [ 'balance_pairs',   lambda { |state| RulesInline::BalancePairs.link_pairs(state) } ],
+      [ 'strikethrough',   lambda { |state| RulesInline::Strikethrough.postProcess(state) } ],
+      [ 'emphasis',        lambda { |state| RulesInline::Emphasis.postProcess(state) } ],
+      [ 'text_collapse',   lambda { |state| RulesInline::TextCollapse.text_collapse(state) } ]
+    ];
 
     #------------------------------------------------------------------------------
     def initialize
@@ -35,6 +41,16 @@ module MarkdownIt
 
       RULES.each do |rule|
         @ruler.push(rule[0], rule[1])
+      end
+
+      # ParserInline#ruler2 -> Ruler
+      #
+      # [[Ruler]] instance. Second ruler used for post-processing
+      # (e.g. in emphasis-like rules).
+      @ruler2 = Ruler.new
+
+      RULES2.each do |rule|
+        @ruler2.push(rule[0], rule[1])
       end
     end
 
@@ -115,7 +131,13 @@ module MarkdownIt
       state = RulesInline::StateInline.new(str, md, env, outTokens)
 
       tokenize(state)
-    end
 
+      rules = @ruler2.getRules('')
+      len = rules.length
+
+      0.upto(len - 1) do |i|
+        rules[i].call(state)
+      end
+    end
   end
 end

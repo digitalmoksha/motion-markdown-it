@@ -46,7 +46,7 @@ NORMALIZE_LINK = lambda do |url|
       end
     end
   end
- 
+
   return MDUrl::Encode.encode(MDUrl::Format.format(parsed))
 end
 
@@ -75,29 +75,29 @@ end
 
 #------------------------------------------------------------------------------
 # class MarkdownIt
-# 
+#
 # Main parser/renderer class.
-# 
+#
 # ##### Usage
-# 
+#
 # ```javascript
 # // node.js, "classic" way:
 # var MarkdownIt = require('markdown-it'),
 #     md = new MarkdownIt();
 # var result = md.render('# markdown-it rulezz!');
-# 
+#
 # // node.js, the same, but with sugar:
 # var md = require('markdown-it')();
 # var result = md.render('# markdown-it rulezz!');
-# 
+#
 # // browser without AMD, added to "window" on script load
 # // Note, there are no dash.
 # var md = window.markdownit();
 # var result = md.render('# markdown-it rulezz!');
 # ```
-# 
+#
 # Single line rendering, without paragraph wrap:
-# 
+#
 # ```javascript
 # var md = require('markdown-it')();
 # var result = md.renderInline('__markdown-it__ rulezz!');
@@ -116,7 +116,7 @@ module MarkdownIt
     attr_accessor   :normalizeLink
     attr_accessor   :normalizeLinkText
     attr_accessor   :linkify
-    
+
     # new MarkdownIt([presetName, options])
     # - presetName (String): optional, `commonmark` / `zero`
     # - options (Object)
@@ -158,7 +158,8 @@ module MarkdownIt
     #   `['«\xA0', '\xA0»', '‹\xA0', '\xA0›']` for French (including nbsp).
     # - __highlight__ - `nil`. Highlighter function for fenced code blocks.
     #   Highlighter `function (str, lang)` should return escaped HTML. It can also
-    #   return nil if the source was not changed and should be escaped externaly.
+    #   return nil if the source was not changed and should be escaped
+    #   externaly. If result starts with <pre... internal wrapper is skipped.
     #
     # ##### Example
     #
@@ -190,11 +191,28 @@ module MarkdownIt
     #       } catch (__) {}
     #     }
     #
-    #     try {
-    #       return hljs.highlightAuto(str).value;
-    #     } catch (__) {}
-    #
     #     return ''; // use external default escaping
+    #   }
+    # });
+    # ```
+    #
+    # Or with full wrapper override (if you need assign class to <pre>):
+    #
+    # ```javascript
+    # var hljs = require('highlight.js') // https://highlightjs.org/
+    #
+    # // Actual default values
+    # var md = require('markdown-it')({
+    #   highlight: function (str, lang) {
+    #     if (lang && hljs.getLanguage(lang)) {
+    #       try {
+    #         return '<pre class="hljs"><code>' +
+    #                hljs.highlight(lang, str).value +
+    #                '</code></pre>';
+    #       } catch (__) {}
+    #     }
+    #
+    #     return '<pre class="hljs"><code>' + md.utils.esccapeHtml(str) + '</code></pre>';
     #   }
     # });
     # ```
@@ -340,6 +358,9 @@ module MarkdownIt
           if presets[:components][name][:rules]
             self.send(name).ruler.enableOnly(presets[:components][name][:rules])
           end
+          if presets[:components][name][:rules2]
+            self.send(name).ruler2.enableOnly(presets[:components][name][:rules2])
+          end
         end
       end
       return self
@@ -371,8 +392,10 @@ module MarkdownIt
       result << @core.ruler.enable(list, true)
       result << @block.ruler.enable(list, true)
       result << @inline.ruler.enable(list, true)
+      result << @inline.ruler2.enable(list, true)
       result.flatten!
-      
+
+
       missed = list.select {|name| !result.include?(name) }
       if !(missed.empty? || ignoreInvalid)
         raise StandardError, "MarkdownIt. Failed to enable unknown rule(s): #{missed}"
@@ -397,6 +420,7 @@ module MarkdownIt
       result << @core.ruler.disable(list, true)
       result << @block.ruler.disable(list, true)
       result << @inline.ruler.disable(list, true)
+      result << @inline.ruler2.disable(list, true)
       result.flatten!
 
       missed = list.select {|name| !result.include?(name) }
@@ -418,11 +442,12 @@ module MarkdownIt
     #
     # ```ruby
     # md = MarkdownIt::Parser.new
-    # md.use(MDPlugin::Iterator, 'foo_replace', 'text', 
+    # md.use(MDPlugin::Iterator, 'foo_replace', 'text',
     #        lambda {|tokens, idx|
     #          tokens[idx].content = tokens[idx].content.gsub(/foo/, 'bar')
     # })
     # ```
+    #------------------------------------------------------------------------------
     def use(plugin, *args)
       plugin.init_plugin(self, *args)
       return self
@@ -440,7 +465,7 @@ module MarkdownIt
     # AST).
     #
     # `env` is used to pass data between "distributed" rules and return additional
-    # metadata like reference info, needed for for renderer. It also can be used to
+    # metadata like reference info, needed for the renderer. It also can be used to
     # inject data in specific cases. Usually, you will be ok to pass `{}`,
     # and then pass updated object to renderer.
     #------------------------------------------------------------------------------
