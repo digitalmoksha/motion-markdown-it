@@ -49,7 +49,7 @@ describe 'API' do
   it 'highlight' do
     md = MarkdownIt::Parser.new({
       highlight: lambda do |str, obj|
-        return '==' + str + '=='
+        return '<pre><code>==' + str + '==</code></pre>'
       end
     })
 
@@ -289,12 +289,6 @@ end
 describe 'maxNesting' do
 
   #------------------------------------------------------------------------------
-  it 'Inline parser should not nest above limit' do
-    md = MarkdownIt::Parser.new({ maxNesting: 2 })
-    expect(md.render('*foo *bar *baz* bar* foo*')).to eq "<p><em>foo <em>bar *baz* bar</em> foo</em></p>\n"
-  end
-
-  #------------------------------------------------------------------------------
   it 'Block parser should not nest above limit' do
     md = MarkdownIt::Parser.new({ maxNesting: 2 })
     expect(md.render(">foo\n>>bar\n>>>baz")).to eq "<blockquote>\n<p>foo</p>\n<blockquote></blockquote>\n</blockquote>\n"
@@ -325,5 +319,38 @@ describe 'smartquotes' do
   #------------------------------------------------------------------------------
   it 'Should support multi-character quotes in different tags' do
     expect(md.render('"a *b \'c *d* e\' f* g"')).to eq "<p>[[[a <em>b (((((c <em>d</em> e)))) f</em> g]]</p>\n"
+  end
+end
+
+#------------------------------------------------------------------------------
+describe 'Token attributes' do
+
+  #------------------------------------------------------------------------------
+  it '.attrJoin' do
+    md = MarkdownIt::Parser.new
+
+    tokens = md.parse('```', {})
+    t      = tokens[0]
+
+    t.attrJoin('class', 'foo')
+    t.attrJoin('class', 'bar')
+
+    expect(md.renderer.render(tokens, md.options, {})).to eq "<pre><code class=\"foo bar\"></code></pre>\n"
+  end
+
+  #------------------------------------------------------------------------------
+  it '.attrSet' do
+    md = MarkdownIt::Parser.new
+
+    tokens = md.parse('```', {})
+    t      = tokens[0]
+
+    t.attrSet('class', 'foo')
+
+    expect(md.renderer.render(tokens, md.options, {})).to eq "<pre><code class=\"foo\"></code></pre>\n"
+
+    t.attrSet('class', 'bar')
+
+    expect(md.renderer.render(tokens, md.options, {})).to eq "<pre><code class=\"bar\"></code></pre>\n"
   end
 end
