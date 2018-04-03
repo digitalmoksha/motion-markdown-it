@@ -5,8 +5,7 @@ module MarkdownIt
     class Autolink
 
       EMAIL_RE    = /^<([a-zA-Z0-9.!#$\%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/
-      AUTOLINK_RE = /^<([a-zA-Z.\-]{1,25}):([^<>\x00-\x20]*)>/
-
+      AUTOLINK_RE = /^<([a-zA-Z][a-zA-Z0-9+.\-]{1,31}):([^<>\x00-\x20]*)>/
 
       #------------------------------------------------------------------------------
       def self.autolink(state, silent)
@@ -21,8 +20,6 @@ module MarkdownIt
         if (AUTOLINK_RE =~ tail)
           linkMatch = tail.match(AUTOLINK_RE)
 
-          return false if !URL_SCHEMAS.include?(linkMatch[1].downcase)
-
           url = linkMatch[0].slice(1...-1)
           fullUrl = state.md.normalizeLink.call(url)
           return false if (!state.md.validateLink.call(fullUrl))
@@ -30,11 +27,15 @@ module MarkdownIt
           if (!silent)
             token         = state.push('link_open', 'a', 1)
             token.attrs   = [ [ 'href', fullUrl ] ]
+            token.markup  = 'autolink'
+            token.info    = 'auto'
 
             token         = state.push('text', '', 0)
             token.content = state.md.normalizeLinkText.call(url)
 
             token         = state.push('link_close', 'a', -1)
+            token.markup  = 'autolink'
+            token.info    = 'auto'
           end
 
           state.pos += linkMatch[0].length

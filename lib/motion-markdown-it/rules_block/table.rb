@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class Table
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.getLine(state, line)
@@ -21,17 +22,26 @@ module MarkdownIt
         lastPos      = 0
         backTicked   = false
         lastBackTick = 0
-        
+
         ch           = str.charCodeAt(pos)
 
         while (pos < max)
-          if (ch == 0x60 && (escapes % 2 == 0))  # `
-            backTicked   = !backTicked
-            lastBackTick = pos
+          if ch == 0x60  # `
+            if (backTicked)
+              # make \` close code sequence, but not open it;
+              # the reason is: `\` is correct code block
+              backTicked = false
+              lastBackTick = pos
+            elsif escapes % 2 == 0
+              backTicked   = !backTicked
+              lastBackTick = pos
+            end
           elsif (ch == 0x7c && (escapes % 2 == 0) && !backTicked)     # '|'
             result.push(str[lastPos...pos])
             lastPos = pos + 1
-          elsif (ch == 0x5c)   # '\'
+          end
+
+          if ch == 0x5c   # '\'
             escapes += 1
           else
             escapes = 0
@@ -55,32 +65,44 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.table(state, startLine, endLine, silent)
-        # should have at least three lines
+        # should have at least two lines
         return false if (startLine + 2 > endLine)
 
         nextLine = startLine + 1
 
-        return false if (state.tShift[nextLine] < state.blkIndent)
+        return false if (state.sCount[nextLine] < state.blkIndent)
 
-        # first character of the second line should be '|' or '-'
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[nextLine] - state.blkIndent >= 4
+
+        # first character of the second line should be '|', '-', ':',
+        # and no other characters are allowed but spaces;
+        # basically, this is the equivalent of /^[-:|][-:|\s]*$/ regexp
+
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         return false if (pos >= state.eMarks[nextLine])
 
         ch = state.src.charCodeAt(pos)
-        return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A) # != '|' && '-' && ':'
+        pos += 1
+        return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A) # | or  - or :
+
+        while pos < state.eMarks[nextLine]
+          ch = state.src.charCodeAt(pos)
+          return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A && !isSpace(ch)) # | or - or :
+
+          pos += 1
+        end
 
         lineText = getLine(state, startLine + 1)
-        return false if (/^[-:| ]+$/ =~ lineText).nil?
 
-        rows = lineText.split('|')
-        return false if (rows.length < 2)
+        columns = lineText.split('|')
         aligns = []
-        (0...rows.length).each do |i|
-          t = rows[i].strip
+        (0...columns.length).each do |i|
+          t = columns[i].strip
           if t.empty?
             # allow empty columns before and after table, but not in between columns
             # e.g. allow ` |---| `, disallow ` ---||--- `
-            if (i == 0 || i == rows.length - 1)
+            if (i == 0 || i == columns.length - 1)
               next
             else
               return false
@@ -99,8 +121,14 @@ module MarkdownIt
 
         lineText = getLine(state, startLine).strip
         return false if !lineText.include?('|')
-        rows = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
-        return false if (aligns.length != rows.length)
+        return false if state.sCount[startLine] - state.blkIndent >= 4
+        columns = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
+
+        # header row will define an amount of columns in the entire table,
+        # and align row shouldn't be smaller than that (the rest of the rows can)
+        columnCount = columns.length
+        return false if columnCount > aligns.length
+
         return true  if silent
 
         token     = state.push('table_open', 'table', 1)
@@ -112,7 +140,7 @@ module MarkdownIt
         token     = state.push('tr_open', 'tr', 1)
         token.map = [ startLine, startLine + 1 ]
 
-        (0...rows.length).each do |i|
+        (0...columns.length).each do |i|
           token          = state.push('th_open', 'th', 1)
           token.map      = [ startLine, startLine + 1 ]
           unless aligns[i].empty?
@@ -120,7 +148,7 @@ module MarkdownIt
           end
 
           token          = state.push('inline', '', 0)
-          token.content  = rows[i].strip
+          token.content  = columns[i].strip
           token.map      = [ startLine, startLine + 1 ]
           token.children = []
 
@@ -135,24 +163,22 @@ module MarkdownIt
 
         nextLine = startLine + 2
         while nextLine < endLine
-          break if (state.tShift[nextLine] < state.blkIndent)
+          break if (state.sCount[nextLine] < state.blkIndent)
 
           lineText = getLine(state, nextLine).strip
           break if !lineText.include?('|')
-          rows = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
-
-          # set number of columns to number of columns in header row
-          rows_length = aligns.length
+          break if state.sCount[nextLine] - state.blkIndent >= 4
+          columns = self.escapedSplit(lineText.gsub(/^\||\|$/, ''))
 
           token = state.push('tr_open', 'tr', 1)
-          (0...rows_length).each do |i|
+          (0...columnCount).each do |i|
             token          = state.push('td_open', 'td', 1)
             unless aligns[i].empty?
               token.attrs  = [ [ 'style', 'text-align:' + aligns[i] ] ]
             end
 
             token          = state.push('inline', '', 0)
-            token.content  = rows[i] ? rows[i].strip : ''
+            token.content  = columns[i] ? columns[i].strip : ''
             token.children = []
 
             token          = state.push('td_close', 'td', -1)

@@ -6,45 +6,83 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.lheading(state, startLine, endLine, silent = true)
-        nextLine = startLine + 1
+        nextLine        = startLine + 1
+        terminatorRules = state.md.block.ruler.getRules('paragraph')
 
-        return false if (nextLine >= endLine)
-        return false if (state.tShift[nextLine] < state.blkIndent)
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
 
-        # Scan next line
+        oldParentType     = state.parentType
+        state.parentType  = 'paragraph' # use paragraph to match terminatorRules
 
-        return false if (state.tShift[nextLine] - state.blkIndent > 3)
+        # jump line-by-line until empty one or EOF
+        while nextLine < endLine && !state.isEmpty(nextLine)
+          # this would be a code block normally, but after paragraph
+          # it's considered a lazy continuation regardless of what's there
+          (nextLine += 1) and next if (state.sCount[nextLine] - state.blkIndent > 3)
 
-        pos = state.bMarks[nextLine] + state.tShift[nextLine]
-        max = state.eMarks[nextLine]
+          #
+          # Check for underline in setext header
+          #
+          if state.sCount[nextLine] >= state.blkIndent
+            pos = state.bMarks[nextLine] + state.tShift[nextLine]
+            max = state.eMarks[nextLine]
 
-        return false if (pos >= max)
+            if pos < max
+              marker = state.src.charCodeAt(pos)
 
-        marker = state.src.charCodeAt(pos)
+              if marker == 0x2D || marker == 0x3D # - or =
+                pos = state.skipChars(pos, marker)
+                pos = state.skipSpaces(pos)
 
-        return false if (marker != 0x2D && marker != 0x3D) # != '-' && != '='
+                if pos >= max
+                  level = (marker == 0x3D ? 1 : 2) # =
+                  break
+                end
+              end
+            end
+          end
 
-        pos = state.skipChars(pos, marker)
-        pos = state.skipSpaces(pos)
+          # quirk for blockquotes, this line should already be checked by that rule
+          (nextLine += 1) and next if state.sCount[nextLine] < 0
 
-        return false if (pos < max)
+          # Some tags can terminate paragraph without empty line.
+          terminate = false
+          l = terminatorRules.length
+          0.upto(l - 1) do |i|
+            if terminatorRules[i].call(state, nextLine, endLine, true)
+              terminate = true
+              break
+            end
+          end
+          break if terminate
 
-        pos = state.bMarks[startLine] + state.tShift[startLine]
+          nextLine += 1
+        end
+
+        if !level
+          # Didn't find valid underline
+          return false
+        end
+
+        content = state.getLines(startLine, nextLine, state.blkIndent, false).strip
 
         state.line = nextLine + 1
-        level = (marker == 0x3D ? 1 : 2) # =
 
         token          = state.push('heading_open', "h#{level.to_s}", 1)
         token.markup   = marker.chr
         token.map      = [ startLine, state.line ]
 
         token          = state.push('inline', '', 0)
-        token.content  = state.src.slice(pos...state.eMarks[startLine]).strip
+        # token.content  = state.src.slice(pos...state.eMarks[startLine]).strip
+        token.content  = content
         token.map      = [ startLine, state.line - 1 ]
         token.children = []
 
         token          = state.push('heading_close', "h#{level.to_s}", -1)
         token.markup   = marker.chr
+
+        state.parentType = oldParentType
 
         return true
       end

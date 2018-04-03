@@ -4,7 +4,7 @@ module MarkdownIt
   module RulesInline
     class Entity
       extend Common::Utils
-      
+
       DIGITAL_RE = /^&#((?:x[a-f0-9]{1,8}|[0-9]{1,8}));/i
       NAMED_RE   = /^&([a-z][a-z0-9]{1,31});/i
 
@@ -33,7 +33,7 @@ module MarkdownIt
             match = state.src.slice_to_end(pos).match(NAMED_RE)
             if match
               if HTMLEntities::MAPPINGS[match[1]]
-                state.pending += HTMLEntities::MAPPINGS[match[1]].chr(Encoding::UTF_8) if !silent
+                state.pending += fromCodePoint(HTMLEntities::MAPPINGS[match[1]]) if !silent
                 state.pos     += match[0].length
                 return true
               end

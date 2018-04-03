@@ -20,16 +20,17 @@ module MarkdownIt
             #
             # For example, you can use '«»„“' for Russian, '„“‚‘' for German,
             # and ['«\xA0', '\xA0»', '‹\xA0', '\xA0›'] for French (including nbsp).
-            quotes: "\u201c\u201d\u2018\u2019", # “”‘’ 
+            quotes: "\u201c\u201d\u2018\u2019", # “”‘’
 
             # Highlighter function. Should return escaped HTML,
-            # or '' if input not changed
+            # or '' if the source string is not changed and should be escaped externaly.
+            # If result starts with <pre... internal wrapper is skipped.
             #
             # function (/*str, lang*/) { return ''; }
             #
             highlight: nil,
 
-            maxNesting:   20            # Internal protection, recursion limit
+            maxNesting:   100            # Internal protection, recursion limit
           },
 
           components: {

@@ -3,11 +3,16 @@
 module MarkdownIt
   module RulesBlock
     class Heading
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.heading(state, startLine, endLine, silent)
         pos = state.bMarks[startLine] + state.tShift[startLine]
         max = state.eMarks[startLine]
+
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
+
         ch  = state.src.charCodeAt(pos)
 
         return false if (ch != 0x23 || pos >= max)
@@ -22,15 +27,15 @@ module MarkdownIt
           ch = state.src.charCodeAt(pos)
         end
 
-        return false if (level > 6 || (pos < max && ch != 0x20))  # space
+        return false if (level > 6 || (pos < max && !isSpace(ch)))
 
         return true if (silent)
 
         # Let's cut tails like '    ###  ' from the end of string
 
-        max = state.skipCharsBack(max, 0x20, pos) # space
+        max = state.skipSpacesBack(max, pos)
         tmp = state.skipCharsBack(max, 0x23, pos) # '#'
-        if (tmp > pos && state.src.charCodeAt(tmp - 1) == 0x20)   # space
+        if (tmp > pos && isSpace(state.src.charCodeAt(tmp - 1)))
           max = tmp
         end
 

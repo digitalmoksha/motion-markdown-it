@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesInline
     class Newline
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.newline(state, silent)
@@ -34,7 +35,7 @@ module MarkdownIt
         pos += 1
 
         # skip heading spaces for next line
-        while pos < max && state.src.charCodeAt(pos) == 0x20
+        while pos < max && isSpace(state.src.charCodeAt(pos))
           pos += 1
         end
 

@@ -10,16 +10,24 @@ module MarkdownIt
     extend  MarkdownIt::Common::Utils
 
     attr_accessor   :rules
-    
+
     # Default Rules
     #------------------------------------------------------------------------------
-    def self.code_inline(tokens, idx)
-      return '<code>' + escapeHtml(tokens[idx].content) + '</code>'
+    def self.code_inline(tokens, idx, options, env, renderer)
+      token = tokens[idx]
+
+      return '<code' + renderer.renderAttrs(token) + '>' +
+             escapeHtml(tokens[idx].content) +
+             '</code>'
     end
 
     #------------------------------------------------------------------------------
-    def self.code_block(tokens, idx)
-      return '<pre><code>' + escapeHtml(tokens[idx].content) + "</code></pre>\n"
+    def self.code_block(tokens, idx, options, env, renderer)
+      token = tokens[idx]
+
+      return  '<pre' + renderer.renderAttrs(token) + '><code>' +
+              escapeHtml(tokens[idx].content) +
+              "</code></pre>\n"
     end
 
     #------------------------------------------------------------------------------
@@ -30,7 +38,6 @@ module MarkdownIt
 
       if !info.empty?
         langName = info.split(/\s+/)[0]
-        token.attrPush([ 'class', options[:langPrefix] + langName ])
       end
 
       if options[:highlight]
@@ -39,7 +46,33 @@ module MarkdownIt
         highlighted = escapeHtml(token.content)
       end
 
-      return  '<pre><code' + renderer.renderAttrs(token) + '>' + highlighted + "</code></pre>\n"
+      if highlighted.start_with?('<pre')
+        return highlighted + "\n"
+      end
+
+      # If language exists, inject class gently, without modifying original token.
+      # May be, one day we will add .clone() for token and simplify this part, but
+      # now we prefer to keep things local.
+      if !info.empty?
+        i        = token.attrIndex('class')
+        tmpAttrs = token.attrs ? token.attrs.dup : []
+
+        if i < 0
+          tmpAttrs.push([ 'class', options[:langPrefix] + langName ])
+        else
+          tmpAttrs[i][1] += ' ' + options[:langPrefix] + langName
+        end
+
+        # Fake token just to render attributes
+        tmpToken       = Token.new(nil, nil, nil)
+        tmpToken.attrs = tmpAttrs
+
+        return  '<pre><code' + renderer.renderAttrs(tmpToken) + '>' +
+                highlighted +
+                "</code></pre>\n"
+      end
+
+      return '<pre><code' + renderer.renderAttrs(token) + '>' + highlighted + "</code></pre>\n"
     end
 
     #------------------------------------------------------------------------------
@@ -84,8 +117,8 @@ module MarkdownIt
     #------------------------------------------------------------------------------
     def initialize
       @default_rules = {
-        'code_inline' => lambda {|tokens, idx, options, env, renderer| Renderer.code_inline(tokens, idx)},
-        'code_block'  => lambda {|tokens, idx, options, env, renderer| Renderer.code_block(tokens, idx)},
+        'code_inline' => lambda {|tokens, idx, options, env, renderer| Renderer.code_inline(tokens, idx, options, env, renderer)},
+        'code_block'  => lambda {|tokens, idx, options, env, renderer| Renderer.code_block(tokens, idx, options, env, renderer)},
         'fence'       => lambda {|tokens, idx, options, env, renderer| Renderer.fence(tokens, idx, options, env, renderer)},
         'image'       => lambda {|tokens, idx, options, env, renderer| Renderer.image(tokens, idx, options, env, renderer)},
         'hardbreak'   => lambda {|tokens, idx, options, env, renderer| Renderer.hardbreak(tokens, idx, options)},
@@ -94,7 +127,7 @@ module MarkdownIt
         'html_block'  => lambda {|tokens, idx, options, env, renderer| Renderer.html_block(tokens, idx)},
         'html_inline' => lambda {|tokens, idx, options, env, renderer| Renderer.html_inline(tokens, idx)}
       }
-      
+
       # Renderer#rules -> Object
       #
       # Contains render rules for tokens. Can be updated and extended.
@@ -110,7 +143,7 @@ module MarkdownIt
       # var result = md.renderInline(...);
       # ```
       #
-      # Each rule is called as independed static function with fixed signature:
+      # Each rule is called as independet static function with fixed signature:
       #
       # ```javascript
       # function my_token_render(tokens, idx, options, env, renderer) {
@@ -220,7 +253,7 @@ module MarkdownIt
 
       0.upto(tokens.length - 1) do |i|
         type = tokens[i].type
-        
+
         if rules[type] != nil
           result += rules[type].call(tokens, i, options, env, self)
         else
@@ -244,11 +277,10 @@ module MarkdownIt
     #------------------------------------------------------------------------------
     def renderInlineAsText(tokens, options, env)
       result = ''
-      rules  = @rules
 
       0.upto(tokens.length - 1) do |i|
         if tokens[i].type == 'text'
-          result += rules['text'].call(tokens, i, options, env, self)
+          result += tokens[i].content
         elsif tokens[i].type == 'image'
           result += renderInlineAsText(tokens[i].children, options, env)
         end

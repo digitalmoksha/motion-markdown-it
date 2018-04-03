@@ -3,12 +3,16 @@
 module MarkdownIt
   module RulesBlock
     class Fence
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.fence(state, startLine, endLine, silent)
         haveEndMarker = false
         pos           = state.bMarks[startLine] + state.tShift[startLine]
         max           = state.eMarks[startLine]
+
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
 
         return false if pos + 3 > max
 
@@ -28,7 +32,7 @@ module MarkdownIt
         markup = state.src.slice(mem...pos)
         params = state.src.slice(pos...max)
 
-        return false if params.include?('`')
+        return false if params.include?(fromCharCode(marker))
 
         # Since start is found, we can report success here in validation mode
         return true if silent
@@ -47,7 +51,7 @@ module MarkdownIt
           pos = mem = state.bMarks[nextLine] + state.tShift[nextLine]
           max = state.eMarks[nextLine];
 
-          if pos < max && state.tShift[nextLine] < state.blkIndent
+          if pos < max && state.sCount[nextLine] < state.blkIndent
             # non-empty line with negative indent should stop the list:
             # - ```
             #  test
@@ -56,7 +60,7 @@ module MarkdownIt
 
           next if state.src.charCodeAt(pos) != marker
 
-          if state.tShift[nextLine] - state.blkIndent >= 4
+          if state.sCount[nextLine] - state.blkIndent >= 4
             # closing fence should be indented less than 4 spaces
             next
           end
@@ -77,7 +81,8 @@ module MarkdownIt
         end
 
         # If a fence has heading spaces, they should be removed from its inner block
-        len           = state.tShift[startLine]
+        len           = state.sCount[startLine]
+
         state.line    = nextLine + (haveEndMarker ? 1 : 0)
 
         token         = state.push('fence', 'code', 0)

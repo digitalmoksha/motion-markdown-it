@@ -4,11 +4,10 @@ module MarkdownIt
   module RulesCore
     class Smartquotes
       extend Common::Utils
-      
+
       QUOTE_TEST_RE = /['"]/
       QUOTE_RE      = /['"]/
       APOSTROPHE    = "\u2019" # ’
-
 
       #------------------------------------------------------------------------------
       def self.replaceAt(str, index, ch)
@@ -34,7 +33,7 @@ module MarkdownIt
           stack = (j < stack.length ? stack.slice(0, j + 1) : stack.fill(nil, stack.length...(j+1)))
 
           next if (token.type != 'text')
-          
+
           text = token.content
           pos  = 0
           max  = text.length
@@ -50,12 +49,42 @@ module MarkdownIt
             pos      = t.begin(0) + 1
             isSingle = (t[0] == "'")
 
-            # treat begin/end of the line as a whitespace
-            lastChar = t.begin(0) - 1 >= 0 ? text.charCodeAt(t.begin(0) - 1) : 0x20
-            nextChar = pos < max ? text.charCodeAt(pos) : 0x20
+            # Find previous character,
+            # default to space if it's the beginning of the line
+            #
+            lastChar = 0x20
 
-            isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(lastChar.chr(Encoding::UTF_8))
-            isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(nextChar.chr(Encoding::UTF_8))
+            if t.begin(0) - 1 >= 0
+              lastChar = text.charCodeAt(t.begin(0) - 1)
+            else
+              (i - 1).downto(0) do |j|
+                break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # lastChar defaults to 0x20
+                next if tokens[j].type != 'text'
+
+                lastChar = tokens[j].content.charCodeAt(tokens[j].content.length - 1)
+                break
+              end
+            end
+
+            # Find next character,
+            # default to space if it's the end of the line
+            #
+            nextChar = 0x20
+
+            if pos < max
+              nextChar = text.charCodeAt(pos)
+            else
+              (i + 1).upto(tokens.length - 1) do |j|
+                break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # nextChar defaults to 0x20
+                next if tokens[j].type != 'text'
+
+                nextChar = tokens[j].content.charCodeAt(0)
+                break
+              end
+            end
+
+            isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(fromCodePoint(lastChar))
+            isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(fromCodePoint(nextChar))
 
             isLastWhiteSpace = isWhiteSpace(lastChar)
             isNextWhiteSpace = isWhiteSpace(nextChar)
@@ -112,7 +141,7 @@ module MarkdownIt
                     openQuote  = state.md.options[:quotes][0]
                     closeQuote = state.md.options[:quotes][1]
                   end
-                  
+
                   # replace token.content *before* tokens[item.token].content,
                   # because, if they are pointing at the same token, replaceAt
                   # could mess up indices when quote length != 1
@@ -124,7 +153,7 @@ module MarkdownIt
 
                   text = token.content
                   max  = text.length
-                  
+
                   stack = (j < stack.length ? stack.slice(0, j) : stack.fill(nil, stack.length...(j)))  # stack.length = j
                   continue_outer_loop = true    # continue OUTER;
                   break
@@ -133,7 +162,7 @@ module MarkdownIt
               end
             end
             next if continue_outer_loop
-            
+
             if (canOpen)
               stack.push({
                 token: i,
@@ -164,7 +193,7 @@ module MarkdownIt
           blkIdx -= 1
         end
       end
-      
+
     end
   end
 end

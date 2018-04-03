@@ -1,7 +1,7 @@
 fixture_dir = File.join(File.dirname(__FILE__), '../../../spec/motion-markdown-it/fixtures')
 
 #------------------------------------------------------------------------------
-describe "markdown-it" do 
+describe "markdown-it" do
 
   parser    = MarkdownIt::Parser.new({ html: true, langPrefix: '', typographer: true, linkify: true })
   datafiles = File.join(fixture_dir, 'markdown-it', '**/*')
@@ -15,5 +15,5 @@ describe "markdown-it" do
         define_test(t, parser)
       end
     end
-  end  
+  end
 end

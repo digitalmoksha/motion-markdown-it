@@ -3,11 +3,12 @@
 module MarkdownIt
   module RulesBlock
     class StateBlock
+      include MarkdownIt::Common::Utils
 
-      attr_accessor     :src, :md, :env, :tokens, :bMarks, :eMarks, :tShift
+      attr_accessor     :src, :md, :env, :tokens, :bMarks, :eMarks, :tShift, :sCount, :bsCount
       attr_accessor     :blkIndent, :line, :lineMax, :tight, :parentType, :ddIndent
       attr_accessor     :level, :result
-      
+
       #------------------------------------------------------------------------------
       def initialize(src, md, env, tokens)
         @src = src
@@ -22,7 +23,20 @@ module MarkdownIt
 
         @bMarks = []  # line begin offsets for fast jumps
         @eMarks = []  # line end offsets for fast jumps
-        @tShift = []  # indent for each line
+        @tShift = []  # offsets of the first non-space characters (tabs not expanded)
+        @sCount = []  # indents for each line (tabs expanded)
+
+        # An amount of virtual spaces (tabs expanded) between beginning
+        # of each line (bMarks) and real beginning of that line.
+        #
+        # It exists only as a hack because blockquotes override bMarks
+        # losing information in the process.
+        #
+        # It's used only when expanding tabs, you can think about it as
+        # an initial tab length, e.g. bsCount=21 applied to string `\t123`
+        # means first tab should be expanded to 4-21%4 === 3 spaces.
+        #
+        @bsCount    = []
 
         # block parser variables
         @blkIndent  = 0       # required block content indent (for example, if we are in list)
@@ -32,6 +46,10 @@ module MarkdownIt
         @parentType = 'root'  # if `list`, block parser stops on two newlines
         @ddIndent   = -1      # indent of the current dd block (-1 if there isn't any)
 
+        # can be 'blockquote', 'list', 'root', 'paragraph' or 'reference'
+        # used in lists to determine if they interrupt a paragraph
+        @parentType = 'root'
+
         @level = 0
 
         # renderer
@@ -40,20 +58,23 @@ module MarkdownIt
         # Create caches
         # Generate markers.
         s            = @src
-        indent       = 0
         indent_found = false
 
-        start = pos = indent = 0
+        start = pos = indent = offset = 0
         len = s.length
-        start.upto(len - 1) do |pos|
-        # !!!!!!
-        # for (start = pos = indent = 0, len = s.length pos < len pos++) {
+        while pos < len
           ch = s.charCodeAt(pos)
 
           if !indent_found
-            if ch == 0x20  # space
+            if isSpace(ch)
               indent += 1
-              next
+
+              if ch == 0x09
+                offset += 4 - offset % 4
+              else
+                offset += 1
+              end
+              (pos += 1) and next
             else
               indent_found = true
             end
@@ -64,17 +85,24 @@ module MarkdownIt
             @bMarks.push(start)
             @eMarks.push(pos)
             @tShift.push(indent)
+            @sCount.push(offset)
+            @bsCount.push(0)
 
             indent_found = false
             indent       = 0
+            offset       = 0
             start        = pos + 1
           end
+
+          pos += 1
         end
 
         # Push fake entry to simplify cache bounds checks
         @bMarks.push(s.length)
         @eMarks.push(s.length)
         @tShift.push(0)
+        @sCount.push(0)
+        @bsCount.push(0)
 
         @lineMax = @bMarks.length - 1 # don't count last fake line
       end
@@ -112,8 +140,20 @@ module MarkdownIt
       def skipSpaces(pos)
         max = @src.length
         while pos < max
-          break if @src.charCodeAt(pos) != 0x20 # space
+          ch = @src.charCodeAt(pos)
+          break if !isSpace(ch)
           pos += 1
+        end
+        return pos
+      end
+
+      # Skip spaces from given position in reverse.
+      #------------------------------------------------------------------------------
+      def skipSpacesBack(pos, min)
+        return pos if pos <= min
+
+        while (pos > min)
+          return pos + 1 if !isSpace(@src.charCodeAt(pos -= 1))
         end
         return pos
       end
@@ -147,22 +187,12 @@ module MarkdownIt
 
         return '' if line_begin >= line_end
 
-        # Opt: don't use push queue for single line
-        if (line + 1) == line_end
-          first = @bMarks[line] + [@tShift[line], indent].min
-          last  = @eMarks[line_end - 1] + (keepLastLF ? 1 : 0)
-          return @src.slice(first...last)
-        end
-
         queue = Array.new(line_end - line_begin)
 
         i = 0
         while line < line_end
-          shift = @tShift[line]
-          shift = indent if shift > indent
-          shift = 0 if shift < 0
-
-          first = @bMarks[line] + shift
+          lineIndent = 0
+          lineStart = first = @bMarks[line]
 
           if line + 1 < line_end || keepLastLF
             # No need for bounds check because we have fake entry on tail.
@@ -171,7 +201,32 @@ module MarkdownIt
             last = @eMarks[line]
           end
 
-          queue[i] = @src.slice(first...last)
+          while first < last && lineIndent < indent
+            ch = @src.charCodeAt(first)
+
+            if isSpace(ch)
+              if ch === 0x09
+                lineIndent += 4 - (lineIndent + @bsCount[line]) % 4
+              else
+                lineIndent += 1
+              end
+            elsif first - lineStart < @tShift[line]
+              # patched tShift masked characters to look like spaces (blockquotes, list markers)
+              lineIndent += 1
+            else
+              break
+            end
+
+            first += 1
+          end
+
+          if lineIndent > indent
+            # partially expanding tabs in code blocks, e.g '\t\tfoobar'
+            # with indent=2 becomes '  \tfoobar'
+            queue[i] = (' ' * (lineIndent - indent)) + @src.slice(first...last)
+          else
+            queue[i] = @src.slice(first...last)
+          end
           line += 1
           i    += 1
         end

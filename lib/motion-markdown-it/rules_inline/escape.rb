@@ -1,8 +1,9 @@
-# Proceess escaped chars and hardbreaks
+# Process escaped chars and hardbreaks
 #------------------------------------------------------------------------------
 module MarkdownIt
   module RulesInline
     class Escape
+      extend Common::Utils
 
       ESCAPED = []
 
@@ -36,7 +37,9 @@ module MarkdownIt
 
             pos += 1
             # skip leading whitespaces from next line
-            while (pos < max && state.src.charCodeAt(pos) == 0x20)
+            while pos < max
+              ch = state.src.charCodeAt(pos)
+              break if !isSpace(ch)
               pos += 1
             end
 
@@ -49,7 +52,6 @@ module MarkdownIt
         state.pos += 1
         return true
       end
-
     end
   end
 end

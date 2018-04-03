@@ -18,7 +18,7 @@ def get_tests(specfile)
   tests          = []
   header_re      = /#+ /
   filename       = File.basename(specfile)
-  
+
   File.open(specfile) do |specf|
     specf.each_line do |line|
       line_number += 1
