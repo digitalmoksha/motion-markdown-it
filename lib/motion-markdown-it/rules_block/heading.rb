@@ -9,6 +9,10 @@ module MarkdownIt
       def self.heading(state, startLine, endLine, silent)
         pos = state.bMarks[startLine] + state.tShift[startLine]
         max = state.eMarks[startLine]
+
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
+
         ch  = state.src.charCodeAt(pos)
 
         return false if (ch != 0x23 || pos >= max)
@@ -23,7 +27,7 @@ module MarkdownIt
           ch = state.src.charCodeAt(pos)
         end
 
-        return false if (level > 6 || (pos < max && ch != 0x20))  # space
+        return false if (level > 6 || (pos < max && !isSpace(ch)))
 
         return true if (silent)
 

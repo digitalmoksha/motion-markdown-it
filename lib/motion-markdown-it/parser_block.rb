@@ -14,7 +14,7 @@ module MarkdownIt
       [ 'table',        lambda { |state, startLine, endLine, silent| RulesBlock::Table.table(state, startLine, endLine, silent) },      [ 'paragraph', 'reference' ] ],
       [ 'code',         lambda { |state, startLine, endLine, silent| RulesBlock::Code.code(state, startLine, endLine, silent) } ],
       [ 'fence',        lambda { |state, startLine, endLine, silent| RulesBlock::Fence.fence(state, startLine, endLine, silent) },      [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
-      [ 'blockquote',   lambda { |state, startLine, endLine, silent| RulesBlock::Blockquote.blockquote(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'list' ] ],
+      [ 'blockquote',   lambda { |state, startLine, endLine, silent| RulesBlock::Blockquote.blockquote(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
       [ 'hr',           lambda { |state, startLine, endLine, silent| RulesBlock::Hr.hr(state, startLine, endLine, silent) },         [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
       [ 'list',         lambda { |state, startLine, endLine, silent| RulesBlock::List.list(state, startLine, endLine, silent) },       [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'reference',    lambda { |state, startLine, endLine, silent| RulesBlock::Reference.reference(state, startLine, endLine, silent) } ],
@@ -74,7 +74,7 @@ module MarkdownIt
           break if ok
         end
 
-        # set state.tight iff we had an empty line before current tag
+        # set state.tight if we had an empty line before current tag
         # i.e. latest empty line should not count
         state.tight = !hasEmptyLines
 
@@ -88,9 +88,6 @@ module MarkdownIt
         if line < endLine && state.isEmpty(line)
           hasEmptyLines = true
           line += 1
-
-          # two empty lines should stop the parser in list mode
-          break if line < endLine && state.parentType == 'list' && state.isEmpty(line)
           state.line = line
         end
       end
@@ -102,7 +99,7 @@ module MarkdownIt
     #------------------------------------------------------------------------------
     def parse(src, md, env, outTokens)
 
-      reutrn [] if !src
+      return if !src
 
       state = RulesBlock::StateBlock.new(src, md, env, outTokens)
 

@@ -157,6 +157,13 @@ describe 'API' do
     expect(md.renderInline('_foo_')).to eq '<em>foo</em>'
   end
 
+  it 'input type check' do
+    md = MarkdownIt::Parser.new
+
+    expect {
+      md.render(nil)
+    }.to raise_error('Input data should be a String')
+  end
 end
 
 
@@ -213,8 +220,8 @@ describe 'Misc' do
 
     md.enable('emphasis')
 
-    expect(md.render('___foo___')).to eq "<p><strong><em>foo</em></strong></p>\n"
-    expect(md.renderInline('___foo___')).to eq '<strong><em>foo</em></strong>'
+    expect(md.render('___foo___')).to eq "<p><em><strong>foo</strong></em></p>\n"
+    expect(md.renderInline('___foo___')).to eq '<em><strong>foo</strong></em>'
   end
 
   #------------------------------------------------------------------------------
@@ -232,6 +239,26 @@ describe 'Misc' do
   #               });
   #
   #   assert.strictEqual(md.render('[foo](bar)'), '<p><a href="bar" target="_blank">foo</a></p>\n');
+  # end
+
+  # TODO ------------------------------------------------------------------------------
+  # it 'Should normalize CR to LF' do
+  #   var md = markdownit();
+  #
+  #   assert.strictEqual(
+  #     md.render('# test\r\r - hello\r - world\r'),
+  #     md.render('# test\n\n - hello\n - world\n')
+  #   );
+  # end
+
+  # TODO ------------------------------------------------------------------------------
+  # it 'Should normalize CR+LF to LF' do
+  #   var md = markdownit();
+  #
+  #   assert.strictEqual(
+  #     md.render('# test\r\n\r\n - hello\r\n - world\r\n'),
+  #     md.render('# test\n\n - hello\n - world\n')
+  #   );
   # end
 
 end
@@ -294,6 +321,17 @@ describe 'maxNesting' do
     expect(md.render(">foo\n>>bar\n>>>baz")).to eq "<blockquote>\n<p>foo</p>\n<blockquote></blockquote>\n</blockquote>\n"
   end
 
+  it 'Inline parser should not nest above limit' do
+    md = MarkdownIt::Parser.new({ maxNesting: 1 })
+
+    expect(md.render('[`foo`]()')).to eq "<p><a href=\"\">`foo`</a></p>\n"
+  end
+
+  it 'Inline nesting coverage' do
+    md = MarkdownIt::Parser.new({ maxNesting: 2 })
+
+    expect(md.render('[[[[[[[[[[[[[[[[[[foo]()')).to eq "<p>[[[[[[[[[[[[[[[[[[foo]()</p>\n"
+  end
 end
 
 #------------------------------------------------------------------------------
@@ -352,5 +390,18 @@ describe 'Token attributes' do
     t.attrSet('class', 'bar')
 
     expect(md.renderer.render(tokens, md.options, {})).to eq "<pre><code class=\"bar\"></code></pre>\n"
+  end
+
+  it '.attrGet' do
+    md = MarkdownIt::Parser.new
+
+    tokens = md.parse('```', {})
+    t      = tokens[0]
+
+    expect(t.attrGet('myattr')).to eq nil
+
+    t.attrSet('myattr', 'myvalue')
+
+    expect(t.attrGet('myattr')).to eq 'myvalue'
   end
 end

@@ -58,6 +58,7 @@ module MarkdownIt
               lastChar = text.charCodeAt(t.begin(0) - 1)
             else
               (i - 1).downto(0) do |j|
+                break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # lastChar defaults to 0x20
                 next if tokens[j].type != 'text'
 
                 lastChar = tokens[j].content.charCodeAt(tokens[j].content.length - 1)
@@ -74,6 +75,7 @@ module MarkdownIt
               nextChar = text.charCodeAt(pos)
             else
               (i + 1).upto(tokens.length - 1) do |j|
+                break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # nextChar defaults to 0x20
                 next if tokens[j].type != 'text'
 
                 nextChar = tokens[j].content.charCodeAt(0)

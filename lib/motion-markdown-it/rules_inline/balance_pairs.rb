@@ -24,11 +24,19 @@ module MarkdownIt
                currDelim[:end] < 0 &&
                currDelim[:level] == lastDelim[:level]
 
-              lastDelim[:jump] = i - j
-              lastDelim[:open] = false
-              currDelim[:end]  = i
-              currDelim[:jump] = 0
-              break
+              # typeofs are for backward compatibility with plugins
+              # not needed:  typeof currDelim.length !== 'undefined' &&
+              #              typeof lastDelim.length !== 'undefined' &&
+              odd_match = (currDelim[:close] || lastDelim[:open]) &&
+                          (currDelim.length + lastDelim.length) % 3 == 0
+
+              if !odd_match
+                lastDelim[:jump] = i - j
+                lastDelim[:open] = false
+                currDelim[:end]  = i
+                currDelim[:jump] = 0
+                break
+              end
             end
 
             j -= currDelim[:jump] + 1

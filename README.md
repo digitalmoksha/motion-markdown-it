@@ -2,11 +2,13 @@
 
 [![Gem Version](https://badge.fury.io/rb/motion-markdown-it.svg)](http://badge.fury.io/rb/motion-markdown-it)
 [![Build Status](https://travis-ci.org/digitalmoksha/motion-markdown-it.svg?branch=master)](https://travis-ci.org/digitalmoksha/motion-markdown-it)
-
 https://travis-ci.org/digitalmoksha/motion-markdown-it.svg?branch=master
+
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
-This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 4.4.0
+This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. Currently synced with markdown-it 8.4.1
+
+---
 
 __[Javascript Live demo](https://markdown-it.github.io)__
 
@@ -114,7 +116,7 @@ parser = MarkdownIt::Parser.new({
   quotes: '“”‘’',
 
   # Highlighter function. Should return escaped HTML,
-  # or nil if the source string is not changed and should be escaped externaly.
+  # or nil if the source string is not changed and should be escaped externally.
   highlight: lambda {|str, lang| return nil}
 })
 ```
@@ -148,7 +150,7 @@ var md = require('markdown-it')()
 Apply syntax highlighting to fenced code blocks with the `highlight` option:
 
 ```js
-var hljs = require('highlight.js') // https://highlightjs.org/
+var hljs = require('highlight.js'); // https://highlightjs.org/
 
 // Actual default values
 var md = require('markdown-it')({
@@ -159,13 +161,39 @@ var md = require('markdown-it')({
       } catch (__) {}
     }
 
-    try {
-      return hljs.highlightAuto(str).value;
-    } catch (__) {}
-
     return ''; // use external default escaping
   }
 });
+```
+
+Or with full wrapper override (if you need assign class to `<pre>`):
+
+```js
+var hljs = require('highlight.js'); // https://highlightjs.org/
+
+// Actual default values
+var md = require('markdown-it')({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(lang, str, true).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+  }
+});
+```
+
+### Linkify
+
+`linkify: true` uses [linkify-it](https://github.com/markdown-it/linkify-it). To
+configure linkify-it, access the linkify instance through `md.linkify`:
+
+```js
+md.linkify.tlds('.py', false);  // disables .py as top level domain
 ```
 
 
@@ -181,8 +209,8 @@ If you are going to write plugins - take a look at
 
 Embedded (enabled by default):
 
-- [Tables](https://help.github.com/articles/github-flavored-markdown/#tables) (GFM)
-- [Strikethrough](https://help.github.com/articles/github-flavored-markdown/#strikethrough) (GFM)
+- [Tables](https://help.github.com/articles/organizing-information-with-tables/) (GFM)
+- [Strikethrough](https://help.github.com/articles/basic-writing-and-formatting-syntax/#styling-text) (GFM)
 
 Via plugins:
 
@@ -211,7 +239,7 @@ var md = require('markdown-it')()
             .enable('image');
 
 // Enable everything
-md = require('markdown-it')('full', {
+md = require('markdown-it')({
   html: true,
   linkify: true,
   typographer: true,
@@ -219,12 +247,14 @@ md = require('markdown-it')('full', {
 ```
 
 
-## Benchmark (for Javascript version)
+## Benchmark
 
 Here is the result of readme parse at MB Pro Retina 2013 (2.4 GHz):
 
 ```bash
-$ benchmark/benchmark.js readme
+make benchmark-deps
+benchmark/benchmark.js readme
+
 Selected samples: (1 of 28)
  > README
 
@@ -232,7 +262,7 @@ Sample: README.md (7774 bytes)
  > commonmark-reference x 1,222 ops/sec ±0.96% (97 runs sampled)
  > current x 743 ops/sec ±0.84% (97 runs sampled)
  > current-commonmark x 1,568 ops/sec ±0.84% (98 runs sampled)
- > marked-0.3.2 x 1,587 ops/sec ±4.31% (93 runs sampled)
+ > marked x 1,587 ops/sec ±4.31% (93 runs sampled)
 ```
 
 __Note.__ CommonMark version runs with [simplified link normalizers](https://github.com/markdown-it/markdown-it/blob/master/benchmark/implementations/current-commonmark/index.js)
@@ -241,6 +271,7 @@ for more "honest" compare. Difference is ~ 1.5x.
 As you can see, `markdown-it` doesn't pay with speed for it's flexibility.
 Slowdown of "full" version caused by additional features not available in
 other implementations.
+
 
 -->
 

@@ -106,6 +106,7 @@ end
 module MarkdownIt
   class Parser
     include MarkdownIt::Common::Utils
+    include MarkdownIt::Helpers
 
     attr_accessor   :inline
     attr_accessor   :block
@@ -116,6 +117,7 @@ module MarkdownIt
     attr_accessor   :normalizeLink
     attr_accessor   :normalizeLinkText
     attr_accessor   :linkify
+    attr_accessor   :helpers
 
     # new MarkdownIt([presetName, options])
     # - presetName (String): optional, `commonmark` / `zero`
@@ -187,7 +189,7 @@ module MarkdownIt
     #   highlight: function (str, lang) {
     #     if (lang && hljs.getLanguage(lang)) {
     #       try {
-    #         return hljs.highlight(lang, str).value;
+    #         return hljs.highlight(lang, str, true).value;
     #       } catch (__) {}
     #     }
     #
@@ -196,7 +198,7 @@ module MarkdownIt
     # });
     # ```
     #
-    # Or with full wrapper override (if you need assign class to <pre>):
+    # Or with full wrapper override (if you need assign class to `<pre>`):
     #
     # ```javascript
     # var hljs = require('highlight.js') // https://highlightjs.org/
@@ -207,12 +209,12 @@ module MarkdownIt
     #     if (lang && hljs.getLanguage(lang)) {
     #       try {
     #         return '<pre class="hljs"><code>' +
-    #                hljs.highlight(lang, str).value +
+    #                hljs.highlight(lang, str, true).value +
     #                '</code></pre>';
     #       } catch (__) {}
     #     }
     #
-    #     return '<pre class="hljs"><code>' + md.utils.esccapeHtml(str) + '</code></pre>';
+    #     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
     #   }
     # });
     # ```
@@ -301,6 +303,19 @@ module MarkdownIt
       @normalizeLinkText = NORMALIZE_LINK_TEXT
 
       #  Expose utils & helpers for easy acces from plugins
+
+      # MarkdownIt#utils -> utils
+      #
+      # Assorted utility functions, useful to write plugins. See details
+      # [here](https://github.com/markdown-it/markdown-it/blob/master/lib/common/utils.js).
+      # this.utils = utils;
+
+      # MarkdownIt#helpers -> helpers
+      #
+      # Link components parser functions, useful to write plugins. See details
+      # [here](https://github.com/markdown-it/markdown-it/blob/master/lib/helpers).
+      # @helpers = assign({}, helpers);
+      @helpers = MarkdownIt::Helpers::HelperWrapper.new
 
       @options = {}
       configure(presetName)
@@ -470,6 +485,8 @@ module MarkdownIt
     # and then pass updated object to renderer.
     #------------------------------------------------------------------------------
     def parse(src, env)
+      raise ArgumentError.new('Input data should be a String') if !src.is_a?(String)
+
       state = RulesCore::StateCore.new(src, self, env)
       @core.process(state)
       return state.tokens

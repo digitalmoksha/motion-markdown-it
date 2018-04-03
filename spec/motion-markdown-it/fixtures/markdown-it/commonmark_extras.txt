@@ -1,3 +1,17 @@
+Issue #246.  Double escaping in ALT
+.
+![&](#)
+.
+<p><img src="#" alt="&amp;"></p>
+.
+
+Strip markdown in ALT tags
+.
+![*strip* [markdown __in__ alt](#)](#)
+.
+<p><img src="#" alt="strip markdown in alt"></p>
+.
+
 Issue #55:
 .
 ![test]
@@ -86,6 +100,26 @@ Those are two separate blockquotes:
 </blockquote>
 .
 
+Blockquote should terminate itself after paragraph continuation
+.
+- list
+    > blockquote
+blockquote continuation
+    - next list item
+.
+<ul>
+<li>list
+<blockquote>
+<p>blockquote
+blockquote continuation</p>
+</blockquote>
+<ul>
+<li>next list item</li>
+</ul>
+</li>
+</ul>
+.
+
 Regression test (code block + regular paragraph)
 .
 >     foo
@@ -98,6 +132,27 @@ Regression test (code block + regular paragraph)
 </blockquote>
 .
 
+Blockquotes inside indented lists should terminate correctly
+.
+   - a
+     > b
+     ```
+     c
+     ```
+   - d
+.
+<ul>
+<li>a
+<blockquote>
+<p>b</p>
+</blockquote>
+<pre><code>c
+</code></pre>
+</li>
+<li>d</li>
+</ul>
+.
+
 Don't output empty class here:
 .
 ```&#x20;
@@ -108,6 +163,80 @@ test
 </code></pre>
 .
 
+Setext header text supports lazy continuations:
+.
+ - foo
+bar
+   ===
+.
+<ul>
+<li>
+<h1>foo
+bar</h1>
+</li>
+</ul>
+.
+
+But setext header underline doesn't:
+.
+ - foo
+   bar
+  ===
+.
+<ul>
+<li>foo
+bar
+===</li>
+</ul>
+.
+
+Info string in fenced code block can't contain marker used for the fence
+.
+~~~test~
+
+~~~test`
+.
+<p>~~~test~</p>
+<pre><code class="test`"></code></pre>
+.
+
+Tabs should be stripped from the beginning of the line
+.
+ foo
+ bar
+	baz
+.
+<p>foo
+bar
+baz</p>
+.
+
+Tabs should not cause hardbreak, EOL tabs aren't stripped in commonmark 0.27
+.
+foo1	
+foo2    
+bar
+.
+<p>foo1	
+foo2<br>
+bar</p>
+.
+
+List item terminating quote should not be paragraph continuation
+.
+1. foo
+   > quote
+2. bar
+.
+<ol>
+<li>foo
+<blockquote>
+<p>quote</p>
+</blockquote>
+</li>
+<li>bar</li>
+</ol>
+.
 
 Coverage. Directive can terminate paragraph.
 .
@@ -248,12 +377,88 @@ test
 
 Coverage. Tabs in blockquotes.
 .
-   >	 foo
-   > 	 bar
+>		test
+
+ >		test
+
+  >		test
+
+> ---
+>		test
+
+ > ---
+ >		test
+
+  > ---
+  >		test
+
+>			test
+
+ >			test
+
+  >			test
+
+> ---
+>			test
+
+ > ---
+ >			test
+
+  > ---
+  >			test
 .
 <blockquote>
-<pre><code> foo
- bar
+<pre><code>  test
+</code></pre>
+</blockquote>
+<blockquote>
+<pre><code> test
+</code></pre>
+</blockquote>
+<blockquote>
+<pre><code>test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code>  test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code> test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code>test
+</code></pre>
+</blockquote>
+<blockquote>
+<pre><code>  	test
+</code></pre>
+</blockquote>
+<blockquote>
+<pre><code> 	test
+</code></pre>
+</blockquote>
+<blockquote>
+<pre><code>	test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code>  	test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code> 	test
+</code></pre>
+</blockquote>
+<blockquote>
+<hr>
+<pre><code>	test
 </code></pre>
 </blockquote>
 .
@@ -271,4 +476,31 @@ Coverage. Tabs in lists.
 </code></pre>
 </li>
 </ol>
+.
+
+Coverage. Various tags not interrupting blockquotes because of indentation:
+.
+> foo
+    - - - -
+
+> foo
+    # not a heading
+
+> foo
+    ```
+    not a fence
+    ```
+.
+<blockquote>
+<p>foo
+- - - -</p>
+</blockquote>
+<blockquote>
+<p>foo
+# not a heading</p>
+</blockquote>
+<blockquote>
+<p>foo
+<code>not a fence</code></p>
+</blockquote>
 .

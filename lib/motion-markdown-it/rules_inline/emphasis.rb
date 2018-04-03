@@ -26,6 +26,10 @@ module MarkdownIt
             #
             marker: marker,
 
+            # Total length of these series of delimiters.
+            #
+            length: scanned[:length],
+
             # An amount of characters before this one that's equivalent to
             # current one. In plain English: if this delimiter does not open
             # an emphasis, neither do previous `jump` characters.
@@ -68,27 +72,27 @@ module MarkdownIt
         delimiters = state.delimiters
         max = state.delimiters.length
 
-        i = 0
-        while i < max
+        i = max - 1
+        while i >= 0
           startDelim = delimiters[i]
 
-          (i += 1) && next if startDelim[:marker] != 0x5F && startDelim[:marker] != 0x2A #  _ and *
+          (i -= 1) and next if startDelim[:marker] != 0x5F && startDelim[:marker] != 0x2A #  _ and *
 
           # Process only opening markers
-          (i += 1) && next if startDelim[:end] == -1
+          (i -= 1) and next if startDelim[:end] == -1
 
           endDelim = delimiters[startDelim[:end]]
 
-          # If the next delimiter has the same marker and is adjacent to this one,
+          # If the previous delimiter has the same marker and is adjacent to this one,
           # merge those into one strong delimiter.
           #
           # `<em><em>whatever</em></em>` -> `<strong>whatever</strong>`
           #
-          isStrong = i + 1 < max &&
-                     delimiters[i + 1][:end] == startDelim[:end] - 1 &&
-                     delimiters[i + 1][:token] == startDelim[:token] + 1 &&
-                     delimiters[startDelim[:end] - 1][:token] == endDelim[:token] - 1 &&
-                     delimiters[i + 1][:marker] == startDelim[:marker]
+          isStrong = i > 0 &&
+                     delimiters[i - 1][:end] == startDelim[:end] + 1 &&
+                     delimiters[i - 1][:token] == startDelim[:token] - 1 &&
+                     delimiters[startDelim[:end] + 1][:token] == endDelim[:token] + 1 &&
+                     delimiters[i - 1][:marker] == startDelim[:marker]
 
           ch = fromCodePoint(startDelim[:marker])
 
@@ -107,12 +111,12 @@ module MarkdownIt
           token.content = ''
 
           if isStrong
-            state.tokens[delimiters[i + 1][:token]].content = ''
-            state.tokens[delimiters[startDelim[:end] - 1][:token]].content = ''
-            i += 1
+            state.tokens[delimiters[i - 1][:token]].content = ''
+            state.tokens[delimiters[startDelim[:end] + 1][:token]].content = ''
+            i -= 1
           end
 
-          i += 1
+          i -= 1
         end
       end
     end

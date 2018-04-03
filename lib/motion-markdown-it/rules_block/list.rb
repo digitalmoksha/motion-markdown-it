@@ -5,7 +5,7 @@ module MarkdownIt
     class List
       extend Common::Utils
 
-      # Search `[-+*][\n ]`, returns next pos arter marker on success
+      # Search `[-+*][\n ]`, returns next pos after marker on success
       # or -1 on fail.
       #------------------------------------------------------------------------------
       def self.skipBulletListMarker(state, startLine)
@@ -103,15 +103,44 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.list(state, startLine, endLine, silent)
+        isTerminatingParagraph = false
         tight = true
+
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if (state.sCount[startLine] - state.blkIndent >= 4)
+
+        # limit conditions when list can interrupt
+        # a paragraph (validation mode only)
+        if silent && state.parentType == 'paragraph'
+          # Next list item should still terminate previous list item;
+          #
+          # This code can fail if plugins use blkIndent as well as lists,
+          # but I hope the spec gets fixed long before that happens.
+          #
+          if state.tShift[startLine] >= state.blkIndent
+            isTerminatingParagraph = true
+          end
+        end
 
         # Detect list type and position after marker
         if ((posAfterMarker = skipOrderedListMarker(state, startLine)) >= 0)
-          isOrdered = true
+          isOrdered   = true
+          start       = state.bMarks[startLine] + state.tShift[startLine]
+          markerValue = state.src[start, posAfterMarker - start - 1].to_i
+
+          # If we're starting a new ordered list right after
+          # a paragraph, it should start with 1.
+          return false if isTerminatingParagraph && markerValue != 1
         elsif ((posAfterMarker = skipBulletListMarker(state, startLine)) >= 0)
           isOrdered = false
         else
           return false
+        end
+
+        # If we're starting a new unordered list right after
+        # a paragraph, first line should not be empty.
+        if isTerminatingParagraph
+          return false if state.skipSpaces(posAfterMarker) >= state.eMarks[startLine]
         end
 
         # We should terminate list on style change. Remember first one to compare.
@@ -146,6 +175,9 @@ module MarkdownIt
         prevEmptyEnd    = false
         terminatorRules = state.md.block.ruler.getRules('list')
 
+        oldParentType    = state.parentType
+        state.parentType = 'list'
+
         while (nextLine < endLine)
           pos          = posAfterMarker
           max          = state.eMarks[nextLine]
@@ -155,12 +187,10 @@ module MarkdownIt
           while pos < max
             ch = state.src.charCodeAt(pos)
 
-            if isSpace(ch)
-              if ch == 0x09
-                offset += 4 - offset % 4
-              else
-                offset += 1
-              end
+            if ch == 0x09
+              offset += 4 - (offset + state.bsCount[nextLine]) % 4
+            elsif ch == 0x20
+              offset += 1
             else
               break
             end
@@ -194,14 +224,23 @@ module MarkdownIt
           oldTight                = state.tight
           oldTShift               = state.tShift[startLine]
           oldLIndent              = state.sCount[startLine]
-          oldParentType           = state.parentType
           state.blkIndent         = indent
           state.tight             = true
-          state.parentType        = 'list'
           state.tShift[startLine] = contentStart - state.bMarks[startLine]
           state.sCount[startLine] = offset
 
-          state.md.block.tokenize(state, startLine, endLine, true)
+          if contentStart >= max && state.isEmpty(startLine + 1)
+            # workaround for this case
+            # (list item is empty, list terminates before "foo"):
+            # ~~~~~~~~
+            #   -
+            #
+            #     foo
+            # ~~~~~~~~
+            state.line = [state.line + 2, endLine].min
+          else
+            state.md.block.tokenize(state, startLine, endLine, true)
+          end
 
           # If any of list item is tight, mark list as tight
           if (!state.tight || prevEmptyEnd)
@@ -215,7 +254,6 @@ module MarkdownIt
           state.tShift[startLine] = oldTShift
           state.sCount[startLine] = oldLIndent
           state.tight             = oldTight
-          state.parentType        = oldParentType
 
           token                   = state.push('list_item_close', 'li', -1)
           token.markup            = markerCharCode.chr
@@ -225,7 +263,6 @@ module MarkdownIt
           contentStart            = state.bMarks[startLine]
 
           break if (nextLine >= endLine)
-          break if (state.isEmpty(nextLine))
 
           #
           # Try to check if list is terminated or continued.
@@ -254,7 +291,7 @@ module MarkdownIt
           break if (markerCharCode != state.src.charCodeAt(posAfterMarker - 1))
         end
 
-        # Finilize list
+        # Finalize list
         if (isOrdered)
           token = state.push('ordered_list_close', 'ol', -1)
         else
@@ -264,6 +301,8 @@ module MarkdownIt
 
         listLines[1] = nextLine
         state.line   = nextLine
+
+        state.parentType = oldParentType
 
         # mark paragraphs tight if needed
         if (tight)

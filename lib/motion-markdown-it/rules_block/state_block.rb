@@ -5,7 +5,7 @@ module MarkdownIt
     class StateBlock
       include MarkdownIt::Common::Utils
 
-      attr_accessor     :src, :md, :env, :tokens, :bMarks, :eMarks, :tShift, :sCount
+      attr_accessor     :src, :md, :env, :tokens, :bMarks, :eMarks, :tShift, :sCount, :bsCount
       attr_accessor     :blkIndent, :line, :lineMax, :tight, :parentType, :ddIndent
       attr_accessor     :level, :result
 
@@ -26,6 +26,18 @@ module MarkdownIt
         @tShift = []  # offsets of the first non-space characters (tabs not expanded)
         @sCount = []  # indents for each line (tabs expanded)
 
+        # An amount of virtual spaces (tabs expanded) between beginning
+        # of each line (bMarks) and real beginning of that line.
+        #
+        # It exists only as a hack because blockquotes override bMarks
+        # losing information in the process.
+        #
+        # It's used only when expanding tabs, you can think about it as
+        # an initial tab length, e.g. bsCount=21 applied to string `\t123`
+        # means first tab should be expanded to 4-21%4 === 3 spaces.
+        #
+        @bsCount    = []
+
         # block parser variables
         @blkIndent  = 0       # required block content indent (for example, if we are in list)
         @line       = 0       # line index in src
@@ -33,6 +45,10 @@ module MarkdownIt
         @tight      = false   # loose/tight mode for lists
         @parentType = 'root'  # if `list`, block parser stops on two newlines
         @ddIndent   = -1      # indent of the current dd block (-1 if there isn't any)
+
+        # can be 'blockquote', 'list', 'root', 'paragraph' or 'reference'
+        # used in lists to determine if they interrupt a paragraph
+        @parentType = 'root'
 
         @level = 0
 
@@ -58,7 +74,7 @@ module MarkdownIt
               else
                 offset += 1
               end
-              (pos += 1) && next
+              (pos += 1) and next
             else
               indent_found = true
             end
@@ -70,6 +86,7 @@ module MarkdownIt
             @eMarks.push(pos)
             @tShift.push(indent)
             @sCount.push(offset)
+            @bsCount.push(0)
 
             indent_found = false
             indent       = 0
@@ -85,6 +102,7 @@ module MarkdownIt
         @eMarks.push(s.length)
         @tShift.push(0)
         @sCount.push(0)
+        @bsCount.push(0)
 
         @lineMax = @bMarks.length - 1 # don't count last fake line
       end
@@ -188,7 +206,7 @@ module MarkdownIt
 
             if isSpace(ch)
               if ch === 0x09
-                lineIndent += 4 - lineIndent % 4
+                lineIndent += 4 - (lineIndent + @bsCount[line]) % 4
               else
                 lineIndent += 1
               end
@@ -202,7 +220,13 @@ module MarkdownIt
             first += 1
           end
 
-          queue[i] = @src.slice(first...last)
+          if lineIndent > indent
+            # partially expanding tabs in code blocks, e.g '\t\tfoobar'
+            # with indent=2 becomes '  \tfoobar'
+            queue[i] = (' ' * (lineIndent - indent)) + @src.slice(first...last)
+          else
+            queue[i] = @src.slice(first...last)
+          end
           line += 1
           i    += 1
         end

@@ -30,7 +30,7 @@ module MarkdownIt
             #
             highlight: nil,
 
-            maxNesting:   20            # Internal protection, recursion limit
+            maxNesting:   100            # Internal protection, recursion limit
           },
 
           components: {

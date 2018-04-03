@@ -3,9 +3,6 @@
 module MarkdownIt
   module RulesInline
     class Image
-      extend Helpers::ParseLinkDestination
-      extend Helpers::ParseLinkLabel
-      extend Helpers::ParseLinkTitle
       extend Common::Utils
 
       #------------------------------------------------------------------------------
@@ -18,7 +15,7 @@ module MarkdownIt
         return false if (state.src.charCodeAt(state.pos + 1) != 0x5B) # [
 
         labelStart  = state.pos + 2
-        labelEnd    = parseLinkLabel(state, state.pos + 1, false)
+        labelEnd    = state.md.helpers.parseLinkLabel(state, state.pos + 1, false)
 
         # parser failed to find ']', so it's not a valid link
         return false if (labelEnd < 0)
@@ -42,7 +39,7 @@ module MarkdownIt
           # [link](  <href>  "title"  )
           #          ^^^^^^ parsing link destination
           start = pos
-          res   = parseLinkDestination(state.src, pos, state.posMax)
+          res   = state.md.helpers.parseLinkDestination(state.src, pos, state.posMax)
           if (res[:ok])
             href = state.md.normalizeLink.call(res[:str])
             if (state.md.validateLink.call(href))
@@ -63,7 +60,7 @@ module MarkdownIt
 
           # [link](  <href>  "title"  )
           #                  ^^^^^^^ parsing link title
-          res = parseLinkTitle(state.src, pos, state.posMax)
+          res = state.md.helpers.parseLinkTitle(state.src, pos, state.posMax)
           if (pos < max && start != pos && res[:ok])
             title = res[:str]
             pos   = res[:pos]
@@ -90,17 +87,9 @@ module MarkdownIt
           #
           return false if state.env[:references].nil?
 
-          # [foo]  [bar]
-          #      ^^ optional whitespace (can include newlines)
-          while pos < max
-            code = state.src.charCodeAt(pos)
-            break if (!isSpace(code) && code != 0x0A)
-            pos += 1
-          end
-
           if (pos < max && state.src.charCodeAt(pos) == 0x5B) # [
             start = pos + 1
-            pos   = parseLinkLabel(state, pos)
+            pos   = state.md.helpers.parseLinkLabel(state, pos)
             if (pos >= 0)
               label = state.src.slice(start...pos)
               pos += 1

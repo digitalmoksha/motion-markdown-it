@@ -1,8 +1,6 @@
 module MarkdownIt
   module RulesBlock
     class Reference
-      extend Helpers::ParseLinkDestination
-      extend Helpers::ParseLinkTitle
       extend Common::Utils
 
       #------------------------------------------------------------------------------
@@ -12,7 +10,10 @@ module MarkdownIt
         max      = state.eMarks[startLine]
         nextLine = startLine + 1
 
-        return false if (state.src.charCodeAt(pos) != 0x5B) # [
+         # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
+
+        return false if state.src.charCodeAt(pos) != 0x5B # [
 
         # Simple check to quickly interrupt scan on [link](url) at the start of line.
         # Can be useful on practice: https://github.com/markdown-it/markdown-it/issues/54
@@ -30,15 +31,18 @@ module MarkdownIt
         endLine = state.lineMax
 
         # jump line-by-line until empty one or EOF
-        terminatorRules = state.md.block.ruler.getRules('reference')
+        terminatorRules   = state.md.block.ruler.getRules('reference')
+
+        oldParentType     = state.parentType
+        state.parentType  = 'reference'
 
         while nextLine < endLine && !state.isEmpty(nextLine)
           # this would be a code block normally, but after paragraph
           # it's considered a lazy continuation regardless of what's there
-          (nextLine += 1) && next if (state.sCount[nextLine] - state.blkIndent > 3)
+          (nextLine += 1) and next if (state.sCount[nextLine] - state.blkIndent > 3)
 
           # quirk for blockquotes, this line should already be checked by that rule
-          (nextLine += 1) && next if state.sCount[nextLine] < 0
+          (nextLine += 1) and next if state.sCount[nextLine] < 0
 
           # Some tags can terminate paragraph without empty line.
           terminate = false
@@ -93,7 +97,7 @@ module MarkdownIt
 
         # [label]:   destination   'title'
         #            ^^^^^^^^^^^ parse this
-        res = parseLinkDestination(str, pos, max)
+        res = state.md.helpers.parseLinkDestination(str, pos, max)
         return false if (!res[:ok])
 
         href = state.md.normalizeLink.call(res[:str])
@@ -122,7 +126,7 @@ module MarkdownIt
 
         # [label]:   destination   'title'
         #                          ^^^^^^^ parse this
-        res = parseLinkTitle(str, pos, max)
+        res = state.md.helpers.parseLinkTitle(str, pos, max)
         if (pos < max && start != pos && res[:ok])
           title  = res[:str]
           pos    = res[:pos]
@@ -176,6 +180,8 @@ module MarkdownIt
         if state.env[:references][label].nil?
           state.env[:references][label] = { title: title, href: href }
         end
+
+        state.parentType = oldParentType
 
         state.line = startLine + lines + 1
         return true

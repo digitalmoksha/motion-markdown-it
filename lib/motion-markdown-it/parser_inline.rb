@@ -63,27 +63,41 @@ module MarkdownIt
       len        = rules.length
       maxNesting = state.md.options[:maxNesting]
       cache      = state.cache
-
+      ok         = false
 
       if cache[pos] != nil
         state.pos = cache[pos]
         return
       end
 
-      # istanbul ignore else
       if state.level < maxNesting
         0.upto(len -1) do |i|
-          if rules[i].call(state, true)
-            cache[pos] = state.pos
-            return
-          end
+          # Increment state.level and decrement it later to limit recursion.
+          # It's harmless to do here, because no tokens are created. But ideally,
+          # we'd need a separate private state variable for this purpose.
+          state.level += 1
+          ok = rules[i].call(state, true)
+          state.level -= 1
+
+          break if ok
         end
+      else
+        # Too much nesting, just skip until the end of the paragraph.
+        #
+        # NOTE: this will cause links to behave incorrectly in the following case,
+        #       when an amount of `[` is exactly equal to `maxNesting + 1`:
+        #
+        #       [[[[[[[[[[[[[[[[[[[[[foo]()
+        #
+        # TODO: remove this workaround when CM standard will allow nested links
+        #       (we can replace it by preventing links from being parsed in
+        #       validation mode)
+        state.pos = state.posMax
       end
 
-      state.pos += 1
+      state.pos += 1 if !ok
       cache[pos] = state.pos
     end
-
 
     # Generate tokens for input range
     #------------------------------------------------------------------------------

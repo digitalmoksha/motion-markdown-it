@@ -10,15 +10,18 @@ module MarkdownIt
         terminatorRules = state.md.block.ruler.getRules('paragraph')
         endLine         = state.lineMax
 
+        oldParentType     = state.parentType
+        state.parentType  = 'paragraph'
+
         # jump line-by-line until empty one or EOF
         # for (; nextLine < endLine && !state.isEmpty(nextLine); nextLine++) {
         while nextLine < endLine && !state.isEmpty(nextLine)
           # this would be a code block normally, but after paragraph
           # it's considered a lazy continuation regardless of what's there
-          (nextLine += 1) && next if (state.sCount[nextLine] - state.blkIndent > 3)
+          (nextLine += 1) and next if (state.sCount[nextLine] - state.blkIndent > 3)
 
           # quirk for blockquotes, this line should already be checked by that rule
-          (nextLine += 1) && next if state.sCount[nextLine] < 0
+          (nextLine += 1) and next if state.sCount[nextLine] < 0
 
           # Some tags can terminate paragraph without empty line.
           terminate = false
@@ -36,15 +39,17 @@ module MarkdownIt
 
         state.line = nextLine
 
-        token          = state.push('paragraph_open', 'p', 1)
-        token.map      = [ startLine, state.line ]
+        token             = state.push('paragraph_open', 'p', 1)
+        token.map         = [ startLine, state.line ]
 
-        token          = state.push('inline', '', 0)
-        token.content  = content
-        token.map      = [ startLine, state.line ]
-        token.children = []
+        token             = state.push('inline', '', 0)
+        token.content     = content
+        token.map         = [ startLine, state.line ]
+        token.children    = []
 
-        token          = state.push('paragraph_close', 'p', -1)
+        token             = state.push('paragraph_close', 'p', -1)
+
+        state.parentType  = oldParentType
 
         return true
       end

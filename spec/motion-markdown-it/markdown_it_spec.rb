@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-describe "markdown-it" do 
+describe "markdown-it" do
 
   parser    = MarkdownIt::Parser.new({ html: true, langPrefix: '', typographer: true, linkify: true })
   datadir   = File.join(File.dirname(__FILE__), 'fixtures', 'markdown-it')
@@ -14,5 +14,5 @@ describe "markdown-it" do
         define_test(t, parser)
       end
     end
-  end  
+  end
 end

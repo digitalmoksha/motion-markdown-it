@@ -34,19 +34,31 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.replace_scoped(inlineTokens)
+        inside_autolink = 0
+
         (inlineTokens.length - 1).downto(0) do |i|
           token = inlineTokens[i]
-          if (token.type == 'text')
+          if token.type == 'text' && inside_autolink == 0
             token.content = token.content.gsub(SCOPED_ABBR_RE) {|match| self.replaceFn(match, $1)}
+          end
+
+          if token.type == 'link_open' && token.info == 'auto'
+            inside_autolink -= 1
+          end
+
+          if token.type == 'link_close' && token.info == 'auto'
+            inside_autolink += 1
           end
         end
       end
 
       #------------------------------------------------------------------------------
       def self.replace_rare(inlineTokens)
+        inside_autolink = 0
+
         (inlineTokens.length - 1).downto(0) do |i|
           token = inlineTokens[i]
-          if (token.type == 'text')
+          if token.type == 'text' && inside_autolink == 0
             if (RARE_RE =~ token.content)
               token.content = token.content.
                           gsub(/\+-/, '±').
@@ -60,6 +72,14 @@ module MarkdownIt
                           gsub(/(^|\s)--(\s|$)/m, "\\1\u2013\\2").
                           gsub(/(^|[^-\s])--([^-\s]|$)/m, "\\1\u2013\\2")
             end
+          end
+
+          if token.type == 'link_open' && token.info == 'auto'
+            inside_autolink -= 1
+          end
+
+          if token.type == 'link_close' && token.info == 'auto'
+            inside_autolink += 1
           end
         end
       end

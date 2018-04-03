@@ -24,6 +24,9 @@ module MarkdownIt
         pos   = state.bMarks[startLine] + state.tShift[startLine]
         max   = state.eMarks[startLine]
 
+        # if it's indented more than 3 spaces, it should be a code block
+        return false if state.sCount[startLine] - state.blkIndent >= 4
+
         return false if !state.md.options[:html]
         return false if state.src.charCodeAt(pos) != 0x3C    # <
 

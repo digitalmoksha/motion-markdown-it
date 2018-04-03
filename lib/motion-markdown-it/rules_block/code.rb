@@ -14,6 +14,7 @@ module MarkdownIt
             nextLine += 1
             next
           end
+
           if (state.sCount[nextLine] - state.blkIndent >= 4)
             nextLine += 1
             last = nextLine
@@ -22,7 +23,7 @@ module MarkdownIt
           break
         end
 
-        state.line    = nextLine
+        state.line    = last
 
         token         = state.push('code_block', 'code', 0)
         token.content = state.getLines(startLine, last, 4 + state.blkIndent, true)

@@ -127,6 +127,20 @@ module MarkdownIt
       end
     end
 
+    # Token.attrGet(name)
+    #
+    # Get the value of attribute `name`, or null if it does not exist.
+    #------------------------------------------------------------------------------
+    def attrGet(name)
+      idx    = attrIndex(name)
+      value  = nil
+
+      if idx >= 0
+        value = @attrs[idx][1]
+      end
+
+      return value
+    end
 
     # Token.attrJoin(name, value)
     #
