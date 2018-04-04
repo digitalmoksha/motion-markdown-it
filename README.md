@@ -2,7 +2,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/motion-markdown-it.svg)](http://badge.fury.io/rb/motion-markdown-it)
 [![Build Status](https://travis-ci.org/digitalmoksha/motion-markdown-it.svg?branch=master)](https://travis-ci.org/digitalmoksha/motion-markdown-it)
-https://travis-ci.org/digitalmoksha/motion-markdown-it.svg?branch=master
 
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
