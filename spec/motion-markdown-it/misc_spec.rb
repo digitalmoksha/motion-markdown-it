@@ -308,7 +308,6 @@ describe 'Links validation' do
     expect(md.render('[test](http://example.com)')).to eq "<p>[test](http://example.com)</p>\n"
     expect(md.render('![test](http://example.com)')).to eq "<p>![test](http://example.com)</p>\n"
   end
-
 end
 
 

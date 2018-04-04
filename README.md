@@ -16,7 +16,6 @@ Follows the __[CommonMark spec](http://spec.commonmark.org/)__ + adds syntax ext
 - Configurable syntax. You can add new rules and even replace existing ones.
 - [Safe](https://github.com/markdown-it/markdown-it/tree/master/docs/security.md) by default.
 - Community-written plugins
-- Community-written plugins
   * [Ruby/RubyMotion](https://github.com/digitalmoksha/motion-markdown-it-plugins)
   * [original javascript plugins](https://www.npmjs.org/browse/keyword/markdown-it-plugin) and [other packages](https://www.npmjs.org/browse/keyword/markdown-it) on npm.
 
@@ -26,7 +25,31 @@ The benefit of this project, for me at least, is to have a standardized CommonMa
 
 ## Performance
 
-Performance is still an issue.  While it performs reasonably well with small to medium files, it degrades for large files.  Work in progress...
+Performance is slower than, say, `kramdown`, but for most uses, is pretty fast.  Here are some non-scientific benchmarks.  Note that `kramdown` and `redcarpet` are not CommonMark compliant.
+
+```
+Running tests on 2018-04-04 under ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-darwin16]
+
+==> Test using file mdsyntax.text and 500 runs
+Rehearsal -------------------------------------------------------------
+motion-markdown-it 8.4.1   17.940000   0.710000  18.650000 ( 18.721629)
+kramdown 1.16.2            14.720000   0.180000  14.900000 ( 15.015840)
+commonmarker 0.17.9         0.220000   0.000000   0.220000 (  0.222098)
+redcarpet 3.4.0             0.140000   0.010000   0.150000 (  0.145821)
+--------------------------------------------------- total: 33.920000sec
+
+                                user     system      total        real
+motion-markdown-it 8.4.1   18.290000   0.720000  19.010000 ( 19.113943)
+kramdown 1.16.2            13.320000   0.110000  13.430000 ( 13.459096)
+commonmarker 0.17.9         0.190000   0.000000   0.190000 (  0.187104)
+redcarpet 3.4.0             0.120000   0.000000   0.120000 (  0.123931)
+
+Real time as a factor of motion-markdown-it
+motion-markdown-it 8.4.1    1.0
+kramdown 1.16.2             0.7042
+commonmarker 0.17.9         0.0098
+redcarpet 3.4.0             0.0065
+````
 
 ## Table of content
 

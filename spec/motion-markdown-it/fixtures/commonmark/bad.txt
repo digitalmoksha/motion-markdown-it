@@ -33,3 +33,12 @@ src line: 7780
 <p><a href="/url">Толпой</a> is a Russian word.</p>
 .
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src line: 8479
+
+.
+<http://../>
+.
+<p><a href="http://../">http://../</a></p>
+.
+

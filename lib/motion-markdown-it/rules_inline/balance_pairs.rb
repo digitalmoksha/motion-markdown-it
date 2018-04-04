@@ -28,7 +28,7 @@ module MarkdownIt
               # not needed:  typeof currDelim.length !== 'undefined' &&
               #              typeof lastDelim.length !== 'undefined' &&
               odd_match = (currDelim[:close] || lastDelim[:open]) &&
-                          (currDelim.length + lastDelim.length) % 3 == 0
+                          (currDelim[:length] + lastDelim[:length]) % 3 == 0
 
               if !odd_match
                 lastDelim[:jump] = i - j

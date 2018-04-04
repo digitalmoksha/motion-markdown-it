@@ -6,5 +6,6 @@ gem 'pry-byebug', '~> 3.4.1', platform: :mri
 
 gem 'kramdown', require: 'kramdown'
 gem 'commonmarker'
+gem 'redcarpet'
 
 gemspec

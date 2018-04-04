@@ -34,6 +34,7 @@ module MarkdownIt
 
           state.delimiters.push({
             marker: marker,
+            length: scanned[:length],
             jump:   i,
             token:  state.tokens.length - 1,
             level:  state.level,

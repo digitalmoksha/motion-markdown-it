@@ -12,6 +12,7 @@ task :benchmark do
   require 'motion-markdown-it'
   require 'kramdown'
   require 'commonmarker'
+  require 'redcarpet'
 
   runs          = 500
   files         = ['mdsyntax.text', 'mdbasics.text']
@@ -31,8 +32,12 @@ task :benchmark do
         parser = MarkdownIt::Parser.new({ html: true, linkify: true, typographer: true })
         runs.times { parser.render(data) }
       end
-      b.report("kramdown #{Kramdown::VERSION}") { runs.times { Kramdown::Document.new(data).to_html } }
       b.report("commonmarker #{CommonMarker::VERSION}") { runs.times { CommonMarker.render_html(data, :DEFAULT) } }
+      b.report("kramdown #{Kramdown::VERSION}") { runs.times { Kramdown::Document.new(data).to_html } }
+      b.report("redcarpet 3.4.0") do
+        parser = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
+        runs.times { parser.render(data) }
+      end
     end
 
     puts
