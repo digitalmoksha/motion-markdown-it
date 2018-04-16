@@ -32,8 +32,8 @@ module MarkdownIt
           else
             match = state.src.slice_to_end(pos).match(NAMED_RE)
             if match
-              if HTMLEntities::MAPPINGS[match[1]]
-                state.pending += fromCodePoint(HTMLEntities::MAPPINGS[match[1]]) if !silent
+              if MarkdownIt::HTMLEntities::MAPPINGS[match[1]]
+                state.pending += fromCodePoint(MarkdownIt::HTMLEntities::MAPPINGS[match[1]]) if !silent
                 state.pos     += match[0].length
                 return true
               end
