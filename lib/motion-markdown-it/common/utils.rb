@@ -68,7 +68,7 @@ module MarkdownIt
       def replaceEntityPattern(match, name)
         code = 0
 
-        return fromCodePoint(HTMLEntities::MAPPINGS[name]) if HTMLEntities::MAPPINGS[name]
+        return fromCodePoint(MarkdownIt::HTMLEntities::MAPPINGS[name]) if MarkdownIt::HTMLEntities::MAPPINGS[name]
 
         if (name.charCodeAt(0) == 0x23 && DIGITAL_ENTITY_TEST_RE =~ name) # '#'
           code = name[1].downcase == 'x' ? name.slice_to_end(2).to_i(16) : name.slice_to_end(1).to_i
