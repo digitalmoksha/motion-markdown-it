@@ -17,12 +17,12 @@ module MarkdownIt
         pos = state.pos
         max = state.posMax
 
-        return false if state.src.charCodeAt(pos) != 0x5C    # \
+        return false if charCodeAt(state.src, pos) != 0x5C    # \
 
         pos += 1
 
         if pos < max
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
 
           if ch < 256 && ESCAPED[ch] != 0
             state.pending += state.src[pos] if !silent
@@ -38,7 +38,7 @@ module MarkdownIt
             pos += 1
             # skip leading whitespaces from next line
             while pos < max
-              ch = state.src.charCodeAt(pos)
+              ch = charCodeAt(state.src, pos)
               break if !isSpace(ch)
               pos += 1
             end

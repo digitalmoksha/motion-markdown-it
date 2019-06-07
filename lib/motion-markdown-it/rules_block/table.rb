@@ -23,7 +23,7 @@ module MarkdownIt
         backTicked   = false
         lastBackTick = 0
 
-        ch           = str.charCodeAt(pos)
+        ch           = charCodeAt(str, pos)
 
         while (pos < max)
           if ch == 0x60  # `
@@ -54,7 +54,7 @@ module MarkdownIt
             backTicked = false
             pos = lastBackTick + 1
           end
-          ch   = str.charCodeAt(pos)
+          ch   = charCodeAt(str, pos)
         end
 
         result.push(str[lastPos..-1])
@@ -82,12 +82,12 @@ module MarkdownIt
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         return false if (pos >= state.eMarks[nextLine])
 
-        ch = state.src.charCodeAt(pos)
+        ch = charCodeAt(state.src, pos)
         pos += 1
         return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A) # | or  - or :
 
         while pos < state.eMarks[nextLine]
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
           return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A && !isSpace(ch)) # | or - or :
 
           pos += 1
@@ -110,9 +110,9 @@ module MarkdownIt
           end
 
           return false if (/^:?-+:?$/ =~ t).nil?
-          if (t.charCodeAt(t.length - 1) == 0x3A)  # ':'
-            aligns.push(t.charCodeAt(0) == 0x3A ? 'center' : 'right')
-          elsif (t.charCodeAt(0) == 0x3A)
+          if (charCodeAt(t, t.length - 1) == 0x3A)  # ':'
+            aligns.push(charCodeAt(t, 0) == 0x3A ? 'center' : 'right')
+          elsif (charCodeAt(t, 0) == 0x3A)
             aligns.push('left')
           else
             aligns.push('')

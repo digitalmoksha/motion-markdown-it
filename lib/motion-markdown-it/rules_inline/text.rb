@@ -48,7 +48,7 @@ module MarkdownIt
       def self.text(state, silent)
         pos = state.pos
 
-        while pos < state.posMax && !self.isTerminatorChar(state.src.charCodeAt(pos))
+        while pos < state.posMax && !self.isTerminatorChar(charCodeAt(state.src, pos))
           pos += 1
         end
 

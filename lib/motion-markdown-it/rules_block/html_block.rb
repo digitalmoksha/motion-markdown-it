@@ -28,7 +28,7 @@ module MarkdownIt
         return false if state.sCount[startLine] - state.blkIndent >= 4
 
         return false if !state.md.options[:html]
-        return false if state.src.charCodeAt(pos) != 0x3C    # <
+        return false if charCodeAt(state.src, pos) != 0x3C    # <
 
         lineText = state.src.slice(pos...max)
 

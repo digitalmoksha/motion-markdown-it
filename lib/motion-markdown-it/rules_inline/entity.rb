@@ -14,10 +14,10 @@ module MarkdownIt
         pos = state.pos
         max = state.posMax
 
-        return false if state.src.charCodeAt(pos) != 0x26    # &
+        return false if charCodeAt(state.src, pos) != 0x26    # &
 
         if pos + 1 < max
-          ch = state.src.charCodeAt(pos + 1)
+          ch = charCodeAt(state.src, pos + 1)
 
           if ch == 0x23     # '#'
             match = state.src[pos..-1].match(DIGITAL_RE)

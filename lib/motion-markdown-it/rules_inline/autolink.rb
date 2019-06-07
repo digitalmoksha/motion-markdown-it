@@ -11,7 +11,7 @@ module MarkdownIt
       def self.autolink(state, silent)
         pos = state.pos
 
-        return false if (state.src.charCodeAt(pos) != 0x3C)  # <
+        return false if (charCodeAt(state.src, pos) != 0x3C)  # <
 
         tail = state.src[pos..-1]
 
