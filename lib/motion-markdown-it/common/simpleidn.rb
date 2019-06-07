@@ -1,11 +1,6 @@
 # encoding: UTF-8
 # Borrowed from https://github.com/mmriis/simpleidn
 #------------------------------------------------------------------------------
-class Integer
-  def to_utf8_character
-    [self].pack("U*")
-  end
-end
 
 module SimpleIDN
     
@@ -21,7 +16,11 @@ module SimpleIDN
     SKEW = 38
     MAXINT = 0x7FFFFFFF
 
-    module_function  
+    module_function
+    
+    def to_utf8_character(int)
+      [int].pack("U*")
+    end  
     
     # decode_digit(cp) returns the numeric value of a basic code 
     # point (for use in representing integers) in the range 0 to
@@ -75,7 +74,7 @@ module SimpleIDN
       # Handle the basic code points: Let basic be the number of input code 
       # points before the last delimiter, or 0 if there is none, then
       # copy the first basic code points to the output.
-      basic = input.rindex(DELIMITER.to_utf8_character) || 0
+      basic = input.rindex(to_utf8_character(DELIMITER)) || 0
 
       input.unpack("U*")[0, basic].each do |char|
         raise(RangeError, "Illegal input >= 0x80") if char >= 0x80
@@ -126,7 +125,7 @@ module SimpleIDN
         i %= out
 
         # Insert n at position i of the output: 
-        output.insert(i, n.to_utf8_character)
+        output.insert(i, to_utf8_character(n))
         i += 1
       end
     
@@ -202,7 +201,7 @@ module SimpleIDN
         delta += 1
         n += 1
       end
-      return output.collect {|c| c.to_utf8_character}.join
+      return output.collect {|c| to_utf8_character(c)}.join
     end
 
   end
