@@ -57,7 +57,7 @@ module MarkdownIt
           ch   = str.charCodeAt(pos)
         end
 
-        result.push(str.slice_to_end(lastPos))
+        result.push(str[lastPos..-1])
 
         return result
       end

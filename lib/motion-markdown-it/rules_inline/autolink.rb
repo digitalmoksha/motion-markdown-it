@@ -13,7 +13,7 @@ module MarkdownIt
 
         return false if (state.src.charCodeAt(pos) != 0x3C)  # <
 
-        tail = state.src.slice_to_end(pos)
+        tail = state.src[pos..-1]
 
         return false if !tail.include?('>')
 

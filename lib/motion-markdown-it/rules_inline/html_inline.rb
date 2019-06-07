@@ -33,7 +33,7 @@ module MarkdownIt
           return false
         end
 
-        match = state.src.slice_to_end(pos).match(HTML_TAG_RE)
+        match = state.src[pos..-1].match(HTML_TAG_RE)
         return false if !match
 
         if !silent

@@ -11,7 +11,7 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.replaceAt(str, index, ch)
-        return str[0, index] + ch + str.slice_to_end(index + 1)
+        return str[0, index] + ch + str[(index + 1)..-1]
       end
 
       #------------------------------------------------------------------------------
