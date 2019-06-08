@@ -14,23 +14,23 @@ module MarkdownIt
         pos = state.pos
         max = state.posMax
 
-        return false if state.src.charCodeAt(pos) != 0x26    # &
+        return false if charCodeAt(state.src, pos) != 0x26    # &
 
         if pos + 1 < max
-          ch = state.src.charCodeAt(pos + 1)
+          ch = charCodeAt(state.src, pos + 1)
 
           if ch == 0x23     # '#'
-            match = state.src.slice_to_end(pos).match(DIGITAL_RE)
+            match = state.src[pos..-1].match(DIGITAL_RE)
             if match
               if !silent
-                code = match[1][0].downcase == 'x' ? match[1].slice_to_end(1).to_i(16) : match[1].to_i
+                code = match[1][0].downcase == 'x' ? match[1][1..-1].to_i(16) : match[1].to_i
                 state.pending += isValidEntityCode(code) ? fromCodePoint(code) : fromCodePoint(0xFFFD)
               end
               state.pos += match[0].length
               return true
             end
           else
-            match = state.src.slice_to_end(pos).match(NAMED_RE)
+            match = state.src[pos..-1].match(NAMED_RE)
             if match
               if MarkdownIt::HTMLEntities::MAPPINGS[match[1]]
                 state.pending += fromCodePoint(MarkdownIt::HTMLEntities::MAPPINGS[match[1]]) if !silent

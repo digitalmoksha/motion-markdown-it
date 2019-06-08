@@ -15,7 +15,7 @@ module MarkdownIt
         level     = 1
 
         while (state.pos < max)
-          marker = state.src.charCodeAt(state.pos)
+          marker = charCodeAt(state.src, state.pos)
           if (marker == 0x5D) # ]
             level -= 1
             if (level == 0)

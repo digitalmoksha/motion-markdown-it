@@ -13,18 +13,18 @@ module MarkdownIt
         # if it's indented more than 3 spaces, it should be a code block
         return false if state.sCount[startLine] - state.blkIndent >= 4
 
-        ch  = state.src.charCodeAt(pos)
+        ch  = charCodeAt(state.src, pos)
 
         return false if (ch != 0x23 || pos >= max)
 
         # count heading level
         level = 1
         pos  += 1
-        ch = state.src.charCodeAt(pos)
+        ch = charCodeAt(state.src, pos)
         while (ch == 0x23 && pos < max && level <= 6)  # '#'
           level += 1
           pos   += 1
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
         end
 
         return false if (level > 6 || (pos < max && !isSpace(ch)))
@@ -35,7 +35,7 @@ module MarkdownIt
 
         max = state.skipSpacesBack(max, pos)
         tmp = state.skipCharsBack(max, 0x23, pos) # '#'
-        if (tmp > pos && isSpace(state.src.charCodeAt(tmp - 1)))
+        if (tmp > pos && isSpace(charCodeAt(state.src, tmp - 1)))
           max = tmp
         end
 

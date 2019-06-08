@@ -11,10 +11,10 @@ module MarkdownIt
         start = pos
         result = {ok: false, pos: 0, lines: 0, str: ''}
 
-        if (str.charCodeAt(pos) == 0x3C ) # <
+        if (charCodeAt(str, pos) == 0x3C ) # <
           pos += 1
           while (pos < max)
-            code = str.charCodeAt(pos)
+            code = charCodeAt(str, pos)
             return result if (code == 0x0A || isSpace(code)) # \n
             if (code == 0x3E) #  >
               result[:pos] = pos + 1
@@ -38,7 +38,7 @@ module MarkdownIt
 
         level = 0
         while (pos < max)
-          code = str.charCodeAt(pos)
+          code = charCodeAt(str, pos)
 
           break if (code == 0x20)
 

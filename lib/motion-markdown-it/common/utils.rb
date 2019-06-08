@@ -55,7 +55,11 @@ module MarkdownIt
       def fromCharCode(c)
         c.chr
       end
-
+      
+      #------------------------------------------------------------------------------
+      def charCodeAt(str, ch)
+        str[ch].ord unless str[ch].nil?
+      end
 
       UNESCAPE_MD_RE  = /\\([\!\"\#\$\%\&\'\(\)\*\+\,\-.\/:;<=>?@\[\\\]^_`{|}~])/
 
@@ -70,8 +74,8 @@ module MarkdownIt
 
         return fromCodePoint(MarkdownIt::HTMLEntities::MAPPINGS[name]) if MarkdownIt::HTMLEntities::MAPPINGS[name]
 
-        if (name.charCodeAt(0) == 0x23 && DIGITAL_ENTITY_TEST_RE =~ name) # '#'
-          code = name[1].downcase == 'x' ? name.slice_to_end(2).to_i(16) : name.slice_to_end(1).to_i
+        if (charCodeAt(name, 0) == 0x23 && DIGITAL_ENTITY_TEST_RE =~ name) # '#'
+          code = name[1].downcase == 'x' ? name[2..-1].to_i(16) : name[1..-1].to_i
           if (isValidEntityCode(code))
             return fromCodePoint(code)
           end

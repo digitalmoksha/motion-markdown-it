@@ -13,7 +13,7 @@ module MarkdownIt
         # if it's indented more than 3 spaces, it should be a code block
         return false if (state.sCount[startLine] - state.blkIndent >= 4)
 
-        marker = state.src.charCodeAt(pos)
+        marker = charCodeAt(state.src, pos)
         pos   += 1
 
         # Check hr marker
@@ -27,7 +27,7 @@ module MarkdownIt
 
         cnt = 1
         while (pos < max)
-          ch   = state.src.charCodeAt(pos)
+          ch   = charCodeAt(state.src, pos)
           pos += 1
           return false if ch != marker && !isSpace(ch)
           cnt += 1 if ch == marker

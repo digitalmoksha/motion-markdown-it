@@ -15,7 +15,7 @@ module MarkdownIt
         return false if (state.sCount[startLine] - state.blkIndent >= 4)
 
         # check the block quote marker
-        return false if state.src.charCodeAt(pos) != 0x3E # >
+        return false if charCodeAt(state.src, pos) != 0x3E # >
         pos += 1
 
         # we know that it's going to be a valid blockquote,
@@ -26,7 +26,7 @@ module MarkdownIt
         initial = offset = state.sCount[startLine] + pos - (state.bMarks[startLine] + state.tShift[startLine])
 
         # skip one optional space after '>'
-        if state.src.charCodeAt(pos) == 0x20 # space
+        if charCodeAt(state.src, pos) == 0x20 # space
           # ' >   test '
           #     ^ -- position start of line here:
           pos             += 1
@@ -34,7 +34,7 @@ module MarkdownIt
           offset          +=1
           adjustTab        = false
           spaceAfterMarker = true
-        elsif state.src.charCodeAt(pos) == 0x09 # tab
+        elsif charCodeAt(state.src, pos) == 0x09 # tab
           spaceAfterMarker = true
 
           if ((state.bsCount[startLine] + offset) % 4 == 3)
@@ -58,7 +58,7 @@ module MarkdownIt
         state.bMarks[startLine] = pos
 
         while pos < max
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
 
           if isSpace(ch)
             if ch == 0x09
@@ -128,7 +128,7 @@ module MarkdownIt
             break
           end
 
-          if state.src.charCodeAt(pos) == 0x3E && !wasOutdented # >
+          if charCodeAt(state.src, pos) == 0x3E && !wasOutdented # >
             pos += 1
             # This line is inside the blockquote.
 
@@ -136,7 +136,7 @@ module MarkdownIt
             initial = offset = state.sCount[nextLine] + pos - (state.bMarks[nextLine] + state.tShift[nextLine])
 
             # skip one optional space after '>'
-            if state.src.charCodeAt(pos) == 0x20 # space
+            if charCodeAt(state.src, pos) == 0x20 # space
               # ' >   test '
               #     ^ -- position start of line here:
               pos             += 1
@@ -144,7 +144,7 @@ module MarkdownIt
               offset          += 1
               adjustTab        = false
               spaceAfterMarker = true
-            elsif state.src.charCodeAt(pos) == 0x09 # tab
+            elsif charCodeAt(state.src, pos) == 0x09 # tab
               spaceAfterMarker = true
 
               if ((state.bsCount[nextLine] + offset) % 4 == 3)
@@ -168,7 +168,7 @@ module MarkdownIt
             state.bMarks[nextLine] = pos
 
             while pos < max
-              ch = state.src.charCodeAt(pos)
+              ch = charCodeAt(state.src, pos)
 
               if isSpace(ch)
                 if ch == 0x09

@@ -12,7 +12,7 @@ module MarkdownIt
         pos = state.bMarks[startLine] + state.tShift[startLine]
         max = state.eMarks[startLine]
 
-        marker = state.src.charCodeAt(pos)
+        marker = charCodeAt(state.src, pos)
         pos   += 1
         # Check bullet
         if (marker != 0x2A && # *
@@ -22,7 +22,7 @@ module MarkdownIt
         end
 
         if pos < max
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
 
           if !isSpace(ch)
             # " -test " - is not a list item
@@ -44,7 +44,7 @@ module MarkdownIt
         # List marker should have at least 2 chars (digit + dot)
         return -1 if (pos + 1 >= max)
 
-        ch   = state.src.charCodeAt(pos)
+        ch   = charCodeAt(state.src, pos)
         pos += 1
 
         return -1 if ch.nil?
@@ -54,7 +54,7 @@ module MarkdownIt
           # EOL -> fail
           return -1 if (pos >= max)
 
-          ch   = state.src.charCodeAt(pos)
+          ch   = charCodeAt(state.src, pos)
           pos += 1
 
           if (ch >= 0x30 && ch <= 0x39) #  >= 0 && <= 9
@@ -75,7 +75,7 @@ module MarkdownIt
         end
 
         if pos < max
-          ch = state.src.charCodeAt(pos)
+          ch = charCodeAt(state.src, pos)
 
           if !isSpace(ch)
             # " 1.test " - is not a list item
@@ -144,7 +144,7 @@ module MarkdownIt
         end
 
         # We should terminate list on style change. Remember first one to compare.
-        markerCharCode = state.src.charCodeAt(posAfterMarker - 1)
+        markerCharCode = charCodeAt(state.src, posAfterMarker - 1)
 
         # For validation mode we can terminate immediately
         return true if (silent)
@@ -185,7 +185,7 @@ module MarkdownIt
           initial = offset = state.sCount[nextLine] + posAfterMarker - (state.bMarks[startLine] + state.tShift[startLine])
 
           while pos < max
-            ch = state.src.charCodeAt(pos)
+            ch = charCodeAt(state.src, pos)
 
             if ch == 0x09
               offset += 4 - (offset + state.bsCount[nextLine]) % 4
@@ -288,7 +288,7 @@ module MarkdownIt
             break if (posAfterMarker < 0)
           end
 
-          break if (markerCharCode != state.src.charCodeAt(posAfterMarker - 1))
+          break if (markerCharCode != charCodeAt(state.src, posAfterMarker - 1))
         end
 
         # Finalize list

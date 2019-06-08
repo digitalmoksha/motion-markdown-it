@@ -20,12 +20,12 @@ module MarkdownIt
 
         # Check start
         max = state.posMax
-        if (state.src.charCodeAt(pos) != 0x3C || pos + 2 >= max)  #  < 
+        if (charCodeAt(state.src, pos) != 0x3C || pos + 2 >= max)  #  < 
           return false
         end
 
         # Quick fail on second char
-        ch = state.src.charCodeAt(pos + 1)
+        ch = charCodeAt(state.src, pos + 1)
         if (ch != 0x21 &&  # !
             ch != 0x3F &&  # ?
             ch != 0x2F &&  # /
@@ -33,7 +33,7 @@ module MarkdownIt
           return false
         end
 
-        match = state.src.slice_to_end(pos).match(HTML_TAG_RE)
+        match = state.src[pos..-1].match(HTML_TAG_RE)
         return false if !match
 
         if !silent

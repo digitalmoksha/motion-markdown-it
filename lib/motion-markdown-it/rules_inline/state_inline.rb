@@ -65,19 +65,19 @@ module MarkdownIt
         left_flanking  = true
         right_flanking = true
         max            = @posMax
-        marker         = @src.charCodeAt(start)
+        marker         = charCodeAt(@src, start)
 
         # treat beginning of the line as a whitespace
-        lastChar = start > 0 ? @src.charCodeAt(start - 1) : 0x20
+        lastChar = start > 0 ? charCodeAt(@src, start - 1) : 0x20
 
-        while (pos < max && @src.charCodeAt(pos) == marker)
+        while (pos < max && charCodeAt(@src, pos) == marker)
           pos += 1
         end
 
         count = pos - start
 
         # treat end of the line as a whitespace
-        nextChar = pos < max ? @src.charCodeAt(pos) : 0x20
+        nextChar = pos < max ? charCodeAt(@src, pos) : 0x20
 
         isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(fromCodePoint(lastChar))
         isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(fromCodePoint(nextChar))

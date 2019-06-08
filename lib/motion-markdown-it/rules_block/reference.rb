@@ -13,16 +13,16 @@ module MarkdownIt
          # if it's indented more than 3 spaces, it should be a code block
         return false if state.sCount[startLine] - state.blkIndent >= 4
 
-        return false if state.src.charCodeAt(pos) != 0x5B # [
+        return false if charCodeAt(state.src, pos) != 0x5B # [
 
         # Simple check to quickly interrupt scan on [link](url) at the start of line.
         # Can be useful on practice: https://github.com/markdown-it/markdown-it/issues/54
         pos += 1
         while (pos < max)
-          if (state.src.charCodeAt(pos) == 0x5D &&    # ]
-              state.src.charCodeAt(pos - 1) != 0x5C)  # \
+          if (charCodeAt(state.src, pos) == 0x5D &&    # ]
+              charCodeAt(state.src, pos - 1) != 0x5C)  # \
             return false if (pos + 1 === max)
-            return false if (state.src.charCodeAt(pos + 1) != 0x3A)  # :
+            return false if (charCodeAt(state.src, pos + 1) != 0x3A)  # :
             break
           end
           pos += 1
@@ -62,7 +62,7 @@ module MarkdownIt
 
         pos = 1
         while pos < max
-          ch = str.charCodeAt(pos)
+          ch = charCodeAt(str, pos)
           if (ch == 0x5B ) # [
             return false
           elsif (ch == 0x5D) # ]
@@ -72,20 +72,20 @@ module MarkdownIt
             lines += 1
           elsif (ch == 0x5C) # \
             pos += 1
-            if (pos < max && str.charCodeAt(pos) == 0x0A)
+            if (pos < max && charCodeAt(str, pos) == 0x0A)
               lines += 1
             end
           end
           pos += 1
         end
 
-        return false if (labelEnd < 0 || str.charCodeAt(labelEnd + 1) != 0x3A) # :
+        return false if (labelEnd < 0 || charCodeAt(str, labelEnd + 1) != 0x3A) # :
 
         # [label]:   destination   'title'
         #         ^^^ skip optional whitespace here
         pos = labelEnd + 2
         while pos < max
-          ch = str.charCodeAt(pos)
+          ch = charCodeAt(str, pos)
           if (ch == 0x0A)
             lines += 1
           elsif isSpace(ch)
@@ -114,7 +114,7 @@ module MarkdownIt
         #                       ^^^ skipping those spaces
         start = pos
         while (pos < max)
-          ch = str.charCodeAt(pos)
+          ch = charCodeAt(str, pos)
           if (ch == 0x0A)
             lines += 1
           elsif isSpace(ch)
@@ -139,12 +139,12 @@ module MarkdownIt
 
         # skip trailing spaces until the rest of the line
         while pos < max
-          ch = str.charCodeAt(pos)
+          ch = charCodeAt(str, pos)
           break if !isSpace(ch)
           pos += 1
         end
 
-        if (pos < max && str.charCodeAt(pos) != 0x0A)
+        if (pos < max && charCodeAt(str, pos) != 0x0A)
           if (title)
             # garbage at the end of the line after title,
             # but it could still be a valid reference if we roll back
@@ -152,14 +152,14 @@ module MarkdownIt
             pos = destEndPos
             lines = destEndLineNo
             while pos < max
-              ch = str.charCodeAt(pos)
+              ch = charCodeAt(str, pos)
               break if !isSpace(ch)
               pos += 1
             end
           end
         end
 
-        if (pos < max && str.charCodeAt(pos) != 0x0A)
+        if (pos < max && charCodeAt(str, pos) != 0x0A)
           # garbage at the end of the line
           return false
         end

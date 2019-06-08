@@ -117,7 +117,7 @@ module MarkdownIt
               end
               if (lastPos < text.length)
                 token         = Token.new('text', '', 0)
-                token.content = text.slice_to_end(lastPos)
+                token.content = text[lastPos..-1]
                 token.level   = level
                 nodes.push(token)
               end

@@ -7,7 +7,7 @@ module MarkdownIt
       #------------------------------------------------------------------------------
       def self.backtick(state, silent)
         pos = state.pos
-        ch = state.src.charCodeAt(pos)
+        ch = charCodeAt(state.src, pos)
 
         return false if (ch != 0x60)  #  ` 
 
@@ -15,7 +15,7 @@ module MarkdownIt
         pos  += 1
         max  = state.posMax
 
-        while (pos < max && state.src.charCodeAt(pos) == 0x60)  # `
+        while (pos < max && charCodeAt(state.src, pos) == 0x60)  # `
           pos += 1
         end
 
@@ -26,7 +26,7 @@ module MarkdownIt
         while ((matchStart = state.src.index('`', matchEnd)) != nil)
           matchEnd = matchStart + 1
 
-          while (matchEnd < max && state.src.charCodeAt(matchEnd) == 0x60) # `
+          while (matchEnd < max && charCodeAt(state.src, matchEnd) == 0x60) # `
             matchEnd += 1
           end
 

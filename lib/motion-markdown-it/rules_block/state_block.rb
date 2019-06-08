@@ -63,7 +63,7 @@ module MarkdownIt
         start = pos = indent = offset = 0
         len = s.length
         while pos < len
-          ch = s.charCodeAt(pos)
+          ch = charCodeAt(s, pos)
 
           if !indent_found
             if isSpace(ch)
@@ -140,7 +140,7 @@ module MarkdownIt
       def skipSpaces(pos)
         max = @src.length
         while pos < max
-          ch = @src.charCodeAt(pos)
+          ch = charCodeAt(@src, pos)
           break if !isSpace(ch)
           pos += 1
         end
@@ -153,7 +153,7 @@ module MarkdownIt
         return pos if pos <= min
 
         while (pos > min)
-          return pos + 1 if !isSpace(@src.charCodeAt(pos -= 1))
+          return pos + 1 if !isSpace(charCodeAt(@src, pos -= 1))
         end
         return pos
       end
@@ -163,7 +163,7 @@ module MarkdownIt
       def skipChars(pos, code)
         max = @src.length
         while pos < max
-          break if (@src.charCodeAt(pos) != code)
+          break if (charCodeAt(@src, pos) != code)
           pos += 1
         end
         return pos
@@ -175,7 +175,7 @@ module MarkdownIt
         return pos if pos <= min
 
         while (pos > min)
-          return (pos + 1) if code != @src.charCodeAt(pos -= 1)
+          return (pos + 1) if code != charCodeAt(@src, pos -= 1)
         end
         return pos
       end
@@ -202,7 +202,7 @@ module MarkdownIt
           end
 
           while first < last && lineIndent < indent
-            ch = @src.charCodeAt(first)
+            ch = charCodeAt(@src, first)
 
             if isSpace(ch)
               if ch === 0x09
