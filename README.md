@@ -55,6 +55,7 @@ redcarpet 3.4.0             0.0065
 - [Install](#install)
 - [Usage examples](#usage-examples)
 - [Plugins](#plugins)
+- [Upgrading](#upgrading)
 - [References / Thanks](#references--thanks)
 - [License](#license)
 
@@ -296,6 +297,44 @@ other implementations.
 
 
 -->
+
+## Upgrading
+
+Upgrading to `8.4.1.2` could cause some small breakage if you are using any custom plugins.  The [motion-markdown-it-plugins](https://github.com/digitalmoksha/motion-markdown-it-plugins) plugins have already been upgraded.
+
+#### charCodeAt
+
+Make sure you have
+
+```ruby
+include MarkdownIt::Common::Utils
+```
+
+at the top of your plugin file.  Then change any references to `charCodeAt`.  For example,
+
+```ruby
+state.src.charCodeAt(pos)
+```
+
+would become
+
+```ruby
+charCodeAt(state.src, pos)
+```
+
+#### slice_to_end
+
+`slice_to_end` has been removed.  Change references like this
+
+```ruby
+state.src.slice_to_end(pos)
+```
+
+to
+
+```ruby
+state.src[pos..-1]
+```
 
 ## References / Thanks
 

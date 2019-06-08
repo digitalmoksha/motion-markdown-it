@@ -24,7 +24,6 @@ else
   require 'motion-markdown-it/common/utils'
   require 'motion-markdown-it/common/html_blocks'
   require 'motion-markdown-it/common/html_re'
-  require 'motion-markdown-it/common/string'
   require 'motion-markdown-it/common/simpleidn'
   require 'motion-markdown-it/helpers/parse_link_destination'
   require 'motion-markdown-it/helpers/parse_link_label'

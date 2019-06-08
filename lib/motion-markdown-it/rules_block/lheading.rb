@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class Lheading
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.lheading(state, startLine, endLine, silent = true)

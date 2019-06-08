@@ -3,6 +3,7 @@
 module MarkdownIt
   module RulesBlock
     class HtmlBlock
+      extend Common::Utils
 
       HTML_OPEN_CLOSE_TAG_RE = MarkdownIt::Common::HtmlRe::HTML_OPEN_CLOSE_TAG_RE
 

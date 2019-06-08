@@ -3,13 +3,14 @@
 module MarkdownIt
   module RulesInline
     class Backticks
+      extend Common::Utils
 
       #------------------------------------------------------------------------------
       def self.backtick(state, silent)
         pos = state.pos
         ch = charCodeAt(state.src, pos)
 
-        return false if (ch != 0x60)  #  ` 
+        return false if (ch != 0x60)  #  `
 
         start = pos
         pos  += 1

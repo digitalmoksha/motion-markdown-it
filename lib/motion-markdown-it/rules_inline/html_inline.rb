@@ -1,11 +1,11 @@
 # Process html tags
 #------------------------------------------------------------------------------
 module MarkdownIt
-
   module RulesInline
     class HtmlInline
+      extend Common::Utils
       include MarkdownIt::Common::HtmlRe
-      
+
       #------------------------------------------------------------------------------
       def self.isLetter(ch)
         lc = ch | 0x20    # to lower case
@@ -20,7 +20,7 @@ module MarkdownIt
 
         # Check start
         max = state.posMax
-        if (charCodeAt(state.src, pos) != 0x3C || pos + 2 >= max)  #  < 
+        if (charCodeAt(state.src, pos) != 0x3C || pos + 2 >= max)  #  <
           return false
         end
 

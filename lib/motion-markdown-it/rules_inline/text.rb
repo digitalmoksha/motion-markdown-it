@@ -4,6 +4,7 @@
 module MarkdownIt
   module RulesInline
     class Text
+      extend Common::Utils
 
       # Rule to skip pure text
       # '{}$%@~+=:' reserved for extentions
