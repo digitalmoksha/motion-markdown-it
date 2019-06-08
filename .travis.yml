@@ -4,14 +4,14 @@ rvm:
   - 2.4.3
 before_install:
   - (ruby --version)
-  - sudo chown -R travis ~/Library/RubyMotion
-  - sudo mkdir -p ~/Library/RubyMotion/build
-  - sudo chown -R travis ~/Library/RubyMotion/build
-  - sudo motion update
+  # - sudo chown -R travis ~/Library/RubyMotion
+  # - sudo mkdir -p ~/Library/RubyMotion/build
+  # - sudo chown -R travis ~/Library/RubyMotion/build
+  # - sudo motion update
 script:
   - bundle install --jobs=3 --retry=3
   - bundle exec rake spec
-  - cd rubymotion
-  - bundle install --gemfile=./Gemfile --jobs=3 --retry=3
-  - bundle exec rake clean
-  - bundle exec rake spec
+  # - cd rubymotion
+  # - bundle install --gemfile=./Gemfile --jobs=3 --retry=3
+  # - bundle exec rake clean
+  # - bundle exec rake spec
