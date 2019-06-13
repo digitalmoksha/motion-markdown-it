@@ -24,15 +24,17 @@ jobs:
       language: objective-c
       rvm: 2.4.2  # pre-installed in image
       cache:
-        - bundler
-        - cocoapods
+        bundler: false
+      gemfile:
+        - Gemfile
       script:
-        - sudo chown -R travis ~/Library/RubyMotion
+        - wget http://travisci.rubymotion.com/ -O RubyMotion-TravisCI.pkg
+        - sudo installer -pkg RubyMotion-TravisCI.pkg -target /
+        - cp -r /usr/lib/swift/*.dylib /Applications/Xcode.app/Contents/Frameworks/
+        - touch /Applications/Xcode.app/Contents/Frameworks/.swift-5-staged
         - sudo mkdir -p ~/Library/RubyMotion/build
-        - sudo chown -R travis ~/Library/RubyMotion/build
-        - sudo motion update
-        - sudo motion repo
+        - sudo chown -R travis ~/Library/RubyMotion
+        - eval "sudo motion activate $RUBYMOTION_LICENSE"
+        - sudo motion update && motion repo
         - cd rubymotion
-        - bundle install --gemfile=./Gemfile --jobs=3 --retry=3
-        - bundle exec rake clean
         - bundle exec rake spec
