@@ -22,9 +22,8 @@ jobs:
   include:
     - stage: rubymotion
       os: osx
-      osx_image: xcode9.1
+      osx_image: xcode10.2
       language: objective-c
-      rvm: 2.4.2  # pre-installed in image
       cache:
         bundler: false
       script:
