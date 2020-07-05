@@ -1,31 +1,30 @@
 # test against both regular Ruby and RubyMotion
-language: ruby
-cache:
-  - bundler
-
-# latest stable/supported versions
-rvm:
-  - 2.4.6
-  - 2.5.5
-  - 2.6.3
-
-before_install:
-  - (ruby --version)
-
-script:
-  - bundle install --jobs=3 --retry=3
-  - bundle exec rake spec
-
 jobs:
   include:
-    - stage: rubymotion
+    - stage: ruby 2.5
+      rvm: 2.5.5
+      script:
+        - bundle install --jobs=3 --retry=3
+        - bundle exec rake spec
+    - stage: ruby 2.6
+      rvm: 2.6.6
+      script:
+        - bundle install --jobs=3 --retry=3
+        - bundle exec rake spec
+    - stage: macOS
       os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11.5
       language: objective-c
-      rvm: 2.4.5  # pre-installed in image
+      env:
+        - RUBYMOTION_LICENSE=1dcac45cc434293009f74b33037bdf7361a3a1ff # Official license key for open-source projects
+        - TMP_DIR=./tmp # For motion repo, so it doesn't attempt to use /tmp, to which it has no access
+        - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
       cache:
         bundler: false
       script:
+        - brew update
+        - brew outdated xctool || brew upgrade xctool
+        - (xcrun simctl list)
         - wget http://travisci.rubymotion.com/ -O RubyMotion-TravisCI.pkg
         - sudo installer -pkg RubyMotion-TravisCI.pkg -target /
         - cp -r /usr/lib/swift/*.dylib /Applications/Xcode.app/Contents/Frameworks/
@@ -33,7 +32,38 @@ jobs:
         - sudo mkdir -p ~/Library/RubyMotion/build
         - sudo chown -R travis ~/Library/RubyMotion
         - eval "sudo motion activate $RUBYMOTION_LICENSE"
-        - sudo motion update && motion repo
+        - sudo motion update
+        - (motion --version)
+        - (ruby --version)
+        - motion repo
         - cd rubymotion
         - bundle install --gemfile=./Gemfile --jobs=3 --retry=3
         - bundle exec rake spec
+    - stage: iOS
+      os: osx
+      osx_image: xcode11.5
+      language: objective-c
+      env:
+        - RUBYMOTION_LICENSE=1dcac45cc434293009f74b33037bdf7361a3a1ff # Official license key for open-source projects
+        - TMP_DIR=./tmp # For motion repo, so it doesn't attempt to use /tmp, to which it has no access
+        - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+      cache:
+        bundler: false
+      script:
+        - brew update
+        - brew outdated xctool || brew upgrade xctool
+        - (xcrun simctl list)
+        - wget http://travisci.rubymotion.com/ -O RubyMotion-TravisCI.pkg
+        - sudo installer -pkg RubyMotion-TravisCI.pkg -target /
+        - cp -r /usr/lib/swift/*.dylib /Applications/Xcode.app/Contents/Frameworks/
+        - touch /Applications/Xcode.app/Contents/Frameworks/.swift-5-staged
+        - sudo mkdir -p ~/Library/RubyMotion/build
+        - sudo chown -R travis ~/Library/RubyMotion
+        - eval "sudo motion activate $RUBYMOTION_LICENSE"
+        - sudo motion update
+        - (motion --version)
+        - (ruby --version)
+        - motion repo
+        - cd rubymotion
+        - bundle install --gemfile=./Gemfile --jobs=3 --retry=3
+        - bundle exec rake spec platform=ios
