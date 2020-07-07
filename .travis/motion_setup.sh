@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $TRAVIS_OS_NAME = 'osx' ]; then
+if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   brew update
   brew outdated xctool || brew upgrade xctool
   (xcrun simctl list)
@@ -15,6 +15,4 @@ if [ $TRAVIS_OS_NAME = 'osx' ]; then
   (motion --version)
   (ruby --version)
   motion repo
-else
-  # Install some custom requirements on Linux
 fi
