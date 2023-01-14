@@ -1,7 +1,7 @@
 # motion-markdown-it
 
 [![Gem Version](https://badge.fury.io/rb/motion-markdown-it.svg)](http://badge.fury.io/rb/motion-markdown-it)
-[![Build Status](https://travis-ci.org/digitalmoksha/motion-markdown-it.svg?branch=master)](https://travis-ci.org/digitalmoksha/motion-markdown-it)
+[![Build Status](https://github.com/digitalmoksha/motion-markdown-it/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalmoksha/motion-markdown-it/actions/workflows/ci.yml)
 
 Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
