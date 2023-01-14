@@ -1,0 +1,27 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  ruby:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: ['2.7', '3.0', '3.1']
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+      BUNDLE_PATH_RELATIVE_TO_CWD: true
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler: default
+          bundler-cache: true
+
+      - name: Run regular ruby specs
+        run: |
+          bundle exec rspec

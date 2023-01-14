@@ -1,11 +1,33 @@
-# -*- coding: utf-8 -*-
-$:.unshift('/Library/RubyMotion/lib')
-$:.unshift('~/.rubymotion/rubymotion-templates')
+# frozen_string_literal: true
 
-platform = ENV.fetch('platform', 'osx')
-testing  = true if ARGV.join(' ') =~ /spec/
+$LOAD_PATH.unshift('/Library/RubyMotion/lib')
+$LOAD_PATH.unshift('~/.rubymotion/rubymotion-templates')
+require 'pry-byebug'
+
+testing           = true if ARGV.join(' ') =~ /spec/
+platform          = ENV.fetch('platform', 'osx')
+SDK_VERSION       = '13.0'
+DEPLOYMENT_TARGET = '13.0'
 
 require "motion/project/template/#{platform}"
+
+# set these upfront, otherwise other gems using `setup` could cause
+# internal validations to fail on incorrect deployment_target/sdk_version
+Motion::Project::App.setup do |app|
+  app.name        = 'motion-markdown-it'
+  app.identifier  = 'com.motion-gemtest.motion-markdown-it'
+
+  if platform == 'ios'
+    # must set to the maximum SDK that the open source license supports,
+    # which is the latest non-beta
+    app.sdk_version           = '16.1'
+    app.deployment_target     = '16.1'
+  else
+    app.sdk_version = ENV.fetch('SDK_VERSION', SDK_VERSION)
+    app.deployment_target = ENV.fetch('DEPLOYMENT_TARGET', DEPLOYMENT_TARGET)
+  end
+end
+
 require 'rubygems'
 
 begin
@@ -15,17 +37,3 @@ rescue LoadError
 end
 
 require 'motion-expect' if testing
-
-Motion::Project::App.setup do |app|
-  app.name        = 'motion-markdown-it'
-  app.identifier  = 'com.motion-gemtest.motion-markdown-it'
-
-  if platform == 'ios'
-    # must set to the maximum SDK that the open source license supports,
-    # which is the latest non-beta
-    app.sdk_version           = '13.5'
-    app.deployment_target     = '13.5'
-  end
-
-  app.detect_dependencies = true
-end
