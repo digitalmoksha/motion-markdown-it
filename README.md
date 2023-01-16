@@ -7,7 +7,7 @@ Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. 
 
-_Currently synced with markdown-it 9.0.1_
+_Currently synced with markdown-it 10.0.0_
 
 ---
 
@@ -54,12 +54,15 @@ redcarpet 3.4.0             0.0065
 
 ## Table of content
 
-- [Install](#install)
-- [Usage examples](#usage-examples)
-- [Plugins](#plugins)
-- [Upgrading](#upgrading)
-- [References / Thanks](#references--thanks)
-- [License](#license)
+- [markdown-it](#markdown-it)
+  - [Install](#install)
+  - [Usage examples](#usage-examples)
+    - [Simple](#simple)
+    - [Init with presets and options](#init-with-presets-and-options)
+  - [Plugins](#plugins)
+  - [Upgrading](#upgrading)
+  - [References / Thanks](#references--thanks)
+  - [License](#license)
 
 <!--
 - [API](#api)

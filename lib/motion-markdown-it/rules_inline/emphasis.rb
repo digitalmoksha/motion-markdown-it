@@ -43,10 +43,6 @@ module MarkdownIt
             #
             token:  state.tokens.length - 1,
 
-            # Token level.
-            #
-            level:  state.level,
-
             # If this delimiter is matched as a valid opener, `end` will be
             # equal to its position, otherwise it's `-1`.
             #
@@ -65,12 +61,8 @@ module MarkdownIt
         return true
       end
 
-
-      # Walk through delimiter list and replace text tokens with tags
-      #
-      def self.postProcess(state)
-        delimiters = state.delimiters
-        max = state.delimiters.length
+      def self.private_postProcess(state, delimiters)
+        max = delimiters.length
 
         i = max - 1
         while i >= 0
@@ -117,6 +109,21 @@ module MarkdownIt
           end
 
           i -= 1
+        end
+      end
+      
+      # Walk through delimiter list and replace text tokens with tags
+      #
+      def self.postProcess(state)
+        tokens_meta = state.tokens_meta
+        max = state.tokens_meta.length
+      
+        private_postProcess(state, state.delimiters)
+
+        0.upto(max - 1) do |curr|
+          if (tokens_meta[curr] && tokens_meta[curr][:delimiters])
+            private_postProcess(state, tokens_meta[curr][:delimiters])
+          end
         end
       end
     end

@@ -84,6 +84,14 @@ foo ~~ bar ~~ baz
 .
 
 
+Should parse strikethrough within link tags:
+.
+[~~foo~~]()
+.
+<p><a href=""><s>foo</s></a></p>
+.
+
+
 Newline should be considered a whitespace:
 .
 ~~test

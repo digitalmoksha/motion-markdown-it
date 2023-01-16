@@ -5,7 +5,7 @@ module MarkdownIt
     class StateInline
       include MarkdownIt::Common::Utils
 
-      attr_accessor   :src, :env, :md, :tokens, :pos, :posMax, :level
+      attr_accessor   :src, :env, :md, :tokens, :pos, :posMax, :level, :tokens_meta
       attr_accessor   :pending, :pendingLevel, :cache, :delimiters
 
       #------------------------------------------------------------------------------
@@ -14,6 +14,7 @@ module MarkdownIt
         @env          = env
         @md           = md
         @tokens       = outTokens
+        @tokens_meta  = Array.new(outTokens.length)
 
         @pos          = 0
         @posMax       = @src.length
@@ -21,9 +22,15 @@ module MarkdownIt
         @pending      = ''
         @pendingLevel = 0
 
-        @cache        = {}      # Stores { start: end } pairs. Useful for backtrack
-                                # optimization of pairs parse (emphasis, strikes).
-        @delimiters   = []
+        # Stores { start: end } pairs. Useful for backtrack
+        # optimization of pairs parse (emphasis, strikes).
+        @cache = {}
+                          
+        # List of emphasis-like delimiters for current tag
+        @delimiters = []
+
+        # Stack of delimiter lists for upper level tags
+        @_prev_delimiters = [];
       end
 
 
@@ -44,13 +51,29 @@ module MarkdownIt
       def push(type, tag, nesting)
         pushPending unless @pending.empty?
 
-        token       = Token.new(type, tag, nesting);
-        @level     -= 1 if nesting < 0 # closing tag
+        token      = Token.new(type, tag, nesting)
+        token_meta = nil
+
+        if nesting < 0
+          # closing tag
+          @level -= 1 
+          @delimiters = @_prev_delimiters.pop
+        end
+
         token.level = @level
-        @level     += 1 if nesting > 0 # opening tag
+
+        if nesting > 0
+          # opening tag
+          @level += 1
+          @_prev_delimiters.push(@delimiters)
+          @delimiters = []
+          token_meta = { delimiters: @delimiters }
+        end
 
         @pendingLevel = @level
         @tokens.push(token)
+        @tokens_meta.push(token_meta)
+
         return token
       end
 

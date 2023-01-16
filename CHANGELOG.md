@@ -1,3 +1,8 @@
+10.0.0
+-------
+
+Synced with markdown-it 10.0.0, see the [CHANGELOG](https://github.com/markdown-it/markdown-it/blob/master/CHANGELOG.md)
+
 9.0.1
 -------
 
