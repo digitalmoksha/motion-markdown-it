@@ -352,7 +352,7 @@ module MarkdownIt
     # MarkdownIt.configure(presets)
     #
     # Batch load of all options and compenent settings. This is internal method,
-    # and you probably will not need it. But if you with - see available presets
+    # and you probably will not need it. But if you will - see available presets
     # and data structure [here](https://github.com/markdown-it/markdown-it/tree/master/lib/presets)
     #
     # We strongly recommend to use presets instead of direct config loads. That
@@ -474,7 +474,7 @@ module MarkdownIt
     # - src (String): source string
     # - env (Object): environment sandbox
     #
-    # Parse input string and returns list of block tokens (special token type
+    # Parse input string and return list of block tokens (special token type
     # "inline" will contain list of inline tokens). You should not call this
     # method directly, until you write custom renderer (for example, to produce
     # AST).

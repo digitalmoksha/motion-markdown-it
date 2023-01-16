@@ -113,8 +113,14 @@ module MarkdownIt
             end
 
             if (canOpen && canClose)
-              # treat this as the middle of the word
-              canOpen  = false
+              # Replace quotes in the middle of punctuation sequence, but not
+              # in the middle of the words, i.e.:
+              #
+              # 1. foo " bar " baz - not replaced
+              # 2. foo-"-bar-"-baz - replaced
+              # 3. foo"bar"baz     - not replaced
+              #
+              canOpen  = isLastPunctChar
               canClose = isNextPunctChar
             end
 
