@@ -7,7 +7,7 @@ Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. 
 
-_Currently synced with markdown-it 10.0.0_
+_Currently synced with markdown-it 11.0.0_
 
 ---
 
@@ -273,6 +273,10 @@ md = require('markdown-it')({
   typographer: true,
 });
 ```
+
+You can find all rules in sources:
+[parser_core.js](lib/parser_core.js), [parser_block](lib/parser_block.js),
+[parser_inline](lib/parser_inline.js).
 
 
 ## Benchmark
