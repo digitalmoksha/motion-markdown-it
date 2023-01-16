@@ -38,9 +38,7 @@ module MarkdownIt
       
             newMinOpenerIdx = openerIdx if (newMinOpenerIdx == -1)
       
-            if (opener[:open] &&
-                opener[:end] < 0 &&
-                opener[:level] == closer[:level])
+            if (opener[:open] && opener[:end] < 0)
       
               isOddMatch = false
       
