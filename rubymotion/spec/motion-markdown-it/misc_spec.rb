@@ -48,7 +48,7 @@ describe 'API' do
   #------------------------------------------------------------------------------
   it 'highlight' do
     md = MarkdownIt::Parser.new({
-      highlight: lambda do |str, obj|
+      highlight: lambda do |str, obj, attrs|
         return '<pre><code>==' + str + '==</code></pre>'
       end
     })
@@ -58,10 +58,22 @@ describe 'API' do
 
   #------------------------------------------------------------------------------
   it 'highlight escape by default' do
-    md = MarkdownIt::Parser.new({highlight: lambda {|value, obj| return nil }})
+    md = MarkdownIt::Parser.new({highlight: lambda {|value, obj, attrs| return nil }})
 
-    # assert.strictEqual(md.render("```\n&\n```"), "<pre><code>&amp;\n</code></pre>\n");
     expect(md.render("```\n&\n```")).to eq "<pre><code>&amp;\n</code></pre>\n"
+  end
+
+  #------------------------------------------------------------------------------
+  it 'highlight arguments' do
+    md = MarkdownIt::Parser.new({
+      highlight: lambda do |str, lang, attrs|
+        expect(lang).to eq 'a'
+        expect(attrs).to eq 'b c d'
+        return '<pre><code>==' + str + '==</code></pre>'
+      end
+    })
+
+    expect(md.render("``` a  b  c  d \nhl\n```")).to eq"<pre><code>==hl\n==</code></pre>\n"
   end
 
   #------------------------------------------------------------------------------
