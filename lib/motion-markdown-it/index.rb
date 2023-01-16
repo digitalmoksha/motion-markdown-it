@@ -69,7 +69,8 @@ NORMALIZE_LINK_TEXT = lambda do |url|
     end
   end
 
-  return MDUrl::Decode.decode(MDUrl::Format.format(parsed))
+  # add '%' to exclude list because of https://github.com/markdown-it/markdown-it/issues/720
+  return MDUrl::Decode.decode(MDUrl::Format.format(parsed), MDUrl::Decode::DEFTAULT_CHARS + '%')
 end
 
 

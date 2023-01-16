@@ -35,13 +35,16 @@ module MarkdownIt
       token     = tokens[idx]
       info      = token.info ? unescapeAll(token.info).strip : ''
       langName  = ''
+      langAttrs = ''
 
       if !info.empty?
-        langName = info.split(/\s+/)[0]
+        arr = info.split(/\s+/)
+        langName = arr[0]
+        langAttrs = arr[1..-1].join(' ')
       end
 
       if options[:highlight]
-        highlighted = options[:highlight].call(token.content, langName) || escapeHtml(token.content)
+        highlighted = options[:highlight].call(token.content, langName, langAttrs) || escapeHtml(token.content)
       else
         highlighted = escapeHtml(token.content)
       end
