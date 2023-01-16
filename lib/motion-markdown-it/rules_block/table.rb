@@ -7,7 +7,7 @@ module MarkdownIt
 
       #------------------------------------------------------------------------------
       def self.getLine(state, line)
-        pos = state.bMarks[line] + state.blkIndent
+        pos = state.bMarks[line] + state.tShift[line]
         max = state.eMarks[line]
 
         return state.src[pos, max - pos]
@@ -116,7 +116,7 @@ module MarkdownIt
         # header row will define an amount of columns in the entire table,
         # and align row should be exactly the same (the rest of the rows can differ)
         columnCount = columns.length
-        return false if columnCount != aligns.length
+        return false if columnCount == 0 || columnCount != aligns.length
 
         return true  if silent
 
