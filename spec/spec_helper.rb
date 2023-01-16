@@ -2,3 +2,5 @@
 # spec_helper.rb included automatically in spec files
 require 'motion-markdown-it/testgen_helper'
 require 'motion-markdown-it'
+
+require 'pry'

@@ -5,7 +5,7 @@ module MarkdownIt
     class Entity
       extend Common::Utils
 
-      DIGITAL_RE = /^&#((?:x[a-f0-9]{1,8}|[0-9]{1,8}));/i
+      DIGITAL_RE = /^&#((?:x[a-f0-9]{1,6}|[0-9]{1,7}));/i
       NAMED_RE   = /^&([a-z][a-z0-9]{1,31});/i
 
 

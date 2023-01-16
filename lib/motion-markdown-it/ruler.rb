@@ -16,7 +16,7 @@
 #------------------------------------------------------------------------------
 
 module MarkdownIt
-  class Ruler 
+  class Ruler
 
     def initialize
       # // List of added rules. Each element is:
@@ -94,7 +94,7 @@ module MarkdownIt
     # *
     # * ##### Example
     # *
-    # * Replace existing typorgapher replacement rule with new one:
+    # * Replace existing typographer replacement rule with new one:
     # *
     # * ```javascript
     # * var md = require('markdown-it')();
@@ -108,7 +108,7 @@ module MarkdownIt
       index = __find__(name)
 
       raise(StandardError, "Parser rule not found: #{name}") if index == -1
-      
+
       @__rules__[index][:fn] = fn
       @__rules__[index][:alt] = opt[:alt] || ['']
       @__cache__ = nil

@@ -15,7 +15,7 @@ module MarkdownIt
           pos += 1
           while (pos < max)
             code = charCodeAt(str, pos)
-            return result if (code == 0x0A || isSpace(code)) # \n
+            return result if (code == 0x0A) # \n
             if (code == 0x3E) #  >
               result[:pos] = pos + 1
               result[:str] = unescapeAll(str.slice((start + 1)...pos))

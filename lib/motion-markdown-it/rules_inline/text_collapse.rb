@@ -1,4 +1,10 @@
+# Clean up tokens after emphasis and strikethrough postprocessing:
 # Merge adjacent text nodes into one, and re-calculate all token levels
+#
+# This is necessary because initially emphasis delimiter markers (*, _, ~)
+# are treated as their own separate text tokens. Then emphasis rule either
+# leaves them as text (needed to merge with adjacent text) or turns them
+# into opening/closing tags (which messes up levels inside).
 #------------------------------------------------------------------------------
 module MarkdownIt
   module RulesInline
@@ -12,9 +18,11 @@ module MarkdownIt
 
         last = curr = 0
         while curr < max
-          # re-calculate levels
-          level += tokens[curr].nesting
+          # re-calculate levels after emphasis/strikethrough turns some text nodes
+          # into opening/closing tags
+          level -= 1 if tokens[curr].nesting < 0 # closing tag
           tokens[curr].level = level
+          level += 1 if tokens[curr].nesting > 0 # opening tag
 
           if tokens[curr].type == 'text' &&
               curr + 1 < max &&

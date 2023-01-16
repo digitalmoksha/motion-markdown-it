@@ -32,7 +32,9 @@ module MarkdownIt
         markup = state.src.slice(mem...pos)
         params = state.src.slice(pos...max)
 
-        return false if params.include?(fromCharCode(marker))
+        if (marker == 0x60) # `
+          return false if params.include?(fromCharCode(marker))
+        end
 
         # Since start is found, we can report success here in validation mode
         return true if silent

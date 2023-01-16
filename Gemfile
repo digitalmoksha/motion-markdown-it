@@ -7,4 +7,8 @@ gem 'kramdown', require: 'kramdown'
 gem 'commonmarker'
 gem 'redcarpet'
 
+group :development, :test do
+  gem 'pry-byebug'
+end
+
 gemspec

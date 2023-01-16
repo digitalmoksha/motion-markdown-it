@@ -6,7 +6,7 @@ module MarkdownIt
       include MarkdownIt::Common::Utils
 
       attr_accessor     :src, :md, :env, :tokens, :bMarks, :eMarks, :tShift, :sCount, :bsCount
-      attr_accessor     :blkIndent, :line, :lineMax, :tight, :parentType, :ddIndent
+      attr_accessor     :blkIndent, :line, :lineMax, :tight, :parentType, :ddIndent, :listIndent
       attr_accessor     :level, :result
 
       #------------------------------------------------------------------------------
@@ -39,12 +39,14 @@ module MarkdownIt
         @bsCount    = []
 
         # block parser variables
-        @blkIndent  = 0       # required block content indent (for example, if we are in list)
+        @blkIndent  = 0       # equired block content indent (for example, if we are
+                              # inside a list, it would be positioned after list marker)
         @line       = 0       # line index in src
         @lineMax    = 0       # lines count
         @tight      = false   # loose/tight mode for lists
         @parentType = 'root'  # if `list`, block parser stops on two newlines
         @ddIndent   = -1      # indent of the current dd block (-1 if there isn't any)
+        @listIndent = -1      # indent of the current list block (-1 if there isn't any)
 
         # can be 'blockquote', 'list', 'root', 'paragraph' or 'reference'
         # used in lists to determine if they interrupt a paragraph
@@ -113,9 +115,9 @@ module MarkdownIt
         token       = Token.new(type, tag, nesting)
         token.block = true
 
-        @level -= 1 if nesting < 0
+        @level -= 1 if nesting < 0 # closing tag
         token.level = @level
-        @level += 1 if nesting > 0
+        @level += 1 if nesting > 0 # opening tag
 
         @tokens.push(token)
         return token

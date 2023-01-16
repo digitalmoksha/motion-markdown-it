@@ -1,5 +1,12 @@
+These examples have been pulled out because they fail for
+currently unknown reasons.
+
+Pulled from `good.txt`
+
+This fails only in RubyMotion
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src line: 2928
+src line: 2984
 
 .
 [ΑΓΩ]: /φου
@@ -9,21 +16,10 @@ src line: 2928
 <p><a href="/%CF%86%CE%BF%CF%85">αγω</a></p>
 .
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src line: 5537
-
-.
-&nbsp; &amp; &copy; &AElig; &Dcaron;
-&frac34; &HilbertSpace; &DifferentialD;
-&ClockwiseContourIntegral; &ngE;
-.
-<p>  &amp; © Æ Ď
-¾ ℋ ⅆ
-∲ ≧̸</p>
-.
+This fails only in RubyMotion
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src line: 7780
+src line: 8071
 
 .
 [Толпой][Толпой] is a Russian word.
@@ -33,12 +29,44 @@ src line: 7780
 <p><a href="/url">Толпой</a> is a Russian word.</p>
 .
 
+This one fails in both Ruby and RubyMotion
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src line: 8479
+src line: 8770
 
 .
 <http://../>
 .
 <p><a href="http://../">http://../</a></p>
 .
+
+--------
+
+Pulled from `commonmark_extras.txt`
+
+This fails only in RubyMotion
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reference labels: 'i̇θωkå'.toUpperCase() is 'İΘΩKÅ', but these should still be equivalent
+.
+[İϴΩKÅ]
+
+[i̇θωkå]: /url
+.
+<p><a href="/url">İϴΩKÅ</a></p>
+.
+
+
+This fails only in RubyMotion
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reference labels: support ligatures (equivalent according to unicode case folding)
+.
+[ﬀﬁﬂ]
+
+[fffifl]: /url
+.
+<p><a href="/url">ﬀﬁﬂ</a></p>
+.
+
 

@@ -45,9 +45,9 @@ module MarkdownIt
         pushPending unless @pending.empty?
 
         token       = Token.new(type, tag, nesting);
-        @level     -= 1 if nesting < 0
+        @level     -= 1 if nesting < 0 # closing tag
         token.level = @level
-        @level     += 1 if nesting > 0
+        @level     += 1 if nesting > 0 # opening tag
 
         @pendingLevel = @level
         @tokens.push(token)
