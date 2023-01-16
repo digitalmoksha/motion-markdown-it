@@ -8,7 +8,7 @@ module MarkdownIt
       NULL_RE      = /\u0000/
 
       #------------------------------------------------------------------------------
-      def self.inline(state)
+      def self.normalize(state)
         # Normalize newlines
         str = state.src.gsub(NEWLINES_RE, "\n")
 

@@ -3,6 +3,8 @@ module MarkdownIt
 
   # TODO this list needs to be brought up to same level as the WC3 document
   # http://www.w3.org/TR/xml-entity-names/byalpha.html
+  # Consider pulling in https://github.com/fb55/entities/blob/master/maps/entities.json,
+  # is kept up to date
   #------------------------------------------------------------------------------
   class HTMLEntities
 
@@ -626,6 +628,7 @@ module MarkdownIt
       'nearr'          => 0x2197,   # ↗                  NORTH EAST ARROW
       'nequiv'         => 0x2262,   # ≢                  NOT IDENTICAL TO
       'nexist'         => 0x2204,   # ∄                  THERE DOES NOT EXIST
+      'ngE'            => '≧̸',      # ≧̸                  from https://github.com/fb55/entities/blob/master/maps/entities.json
       'nge'            => 0x2271,   # ≱   dup            NEITHER GREATER-THAN NOR EQUAL TO
       'nges'           => 0x2271,   # ≱   dup       skip NEITHER GREATER-THAN NOR EQUAL TO
       'Ngr'            => 0x039d,   # Ν   dup       skip GREEK CAPITAL LETTER NU

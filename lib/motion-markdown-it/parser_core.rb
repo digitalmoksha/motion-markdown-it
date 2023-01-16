@@ -8,9 +8,9 @@ module MarkdownIt
   class ParserCore
 
     attr_accessor   :ruler
-    
+
     RULES = [
-      [ 'normalize',      lambda { |state| RulesCore::Normalize.inline(state) }         ],
+      [ 'normalize',      lambda { |state| RulesCore::Normalize.normalize(state) }         ],
       [ 'block',          lambda { |state| RulesCore::Block.block(state) }              ],
       [ 'inline',         lambda { |state| RulesCore::Inline.inline(state) }            ],
       [ 'linkify',        lambda { |state| RulesCore::Linkify.linkify(state) }          ],

@@ -35,7 +35,9 @@ module MarkdownIt
             if (!silent)
               token         = state.push('code_inline', 'code', 0)
               token.markup  = marker
-              token.content = state.src.slice(pos...matchStart).gsub(/[ \n]+/, ' ').strip
+              token.content = state.src.slice(pos...matchStart)
+                .gsub(/\n/, ' ')
+                .gsub(/^ (.+) $/, '\1')
             end
             state.pos = matchEnd
             return true
