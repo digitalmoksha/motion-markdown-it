@@ -34,10 +34,9 @@ module MarkdownIt
 
           state.delimiters.push({
             marker: marker,
-            length: scanned[:length],
+            length: 0, # disable "rule of 3" length checks meant for emphasis
             jump:   i,
             token:  state.tokens.length - 1,
-            level:  state.level,
             end:    -1,
             open:   scanned[:can_open],
             close:  scanned[:can_close]
@@ -50,12 +49,9 @@ module MarkdownIt
         return true
       end
 
-      # Walk through delimiter list and replace text tokens with tags
-      #------------------------------------------------------------------------------
-      def self.postProcess(state)
+      def self.private_postProcess(state, delimiters)
         loneMarkers = []
-        delimiters  = state.delimiters
-        max         = state.delimiters.length
+        max         = delimiters.length
 
         0.upto(max - 1) do |i|
           startDelim = delimiters[i]
@@ -106,6 +102,21 @@ module MarkdownIt
             token = state.tokens[j]
             state.tokens[j] = state.tokens[i]
             state.tokens[i] = token
+          end
+        end
+      end
+
+      # Walk through delimiter list and replace text tokens with tags
+      #
+      def self.postProcess(state)
+        tokens_meta = state.tokens_meta
+        max = state.tokens_meta.length
+      
+        private_postProcess(state, state.delimiters)
+
+        0.upto(max - 1) do |curr|
+          if (tokens_meta[curr] && tokens_meta[curr][:delimiters])
+            private_postProcess(state, tokens_meta[curr][:delimiters])
           end
         end
       end
