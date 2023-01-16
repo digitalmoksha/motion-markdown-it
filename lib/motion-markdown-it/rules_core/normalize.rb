@@ -4,8 +4,9 @@ module MarkdownIt
   module RulesCore
     class Normalize
 
-      NEWLINES_RE  = /\r[\n\u0085]?|[\u2424\u2028\u0085]/
-      NULL_RE      = /\u0000/
+      # https://spec.commonmark.org/0.29/#line-ending
+      NEWLINES_RE  = /\r\n?|\n/
+      NULL_RE      = /\0/
 
       #------------------------------------------------------------------------------
       def self.normalize(state)
