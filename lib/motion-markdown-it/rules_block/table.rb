@@ -173,11 +173,13 @@ module MarkdownIt
           token = state.push('tr_open', 'tr', 1)
           (0...columnCount).each do |i|
             token          = state.push('td_open', 'td', 1)
+            token.map      = [ nextLine, nextLine + 1 ]
             unless aligns[i].empty?
               token.attrs  = [ [ 'style', 'text-align:' + aligns[i] ] ]
             end
 
             token          = state.push('inline', '', 0)
+            token.map      = [ nextLine, nextLine + 1 ]
             token.content  = columns[i] ? columns[i].strip : ''
             token.children = []
 

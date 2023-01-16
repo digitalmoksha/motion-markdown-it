@@ -59,7 +59,7 @@ module MarkdownIt
             else
               (i - 1).downto(0) do |j|
                 break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # lastChar defaults to 0x20
-                next if tokens[j].type != 'text'
+                next if tokens[j].content.empty? # should skip all tokens except 'text', 'html_inline' or 'code_inline'
 
                 lastChar = charCodeAt(tokens[j].content, tokens[j].content.length - 1)
                 break
@@ -76,7 +76,7 @@ module MarkdownIt
             else
               (i + 1).upto(tokens.length - 1) do |j|
                 break if tokens[j].type == 'softbreak' || tokens[j].type == 'hardbreak' # nextChar defaults to 0x20
-                next if tokens[j].type != 'text'
+                next if tokens[j].content.empty? # should skip all tokens except 'text', 'html_inline' or 'code_inline'
 
                 nextChar = charCodeAt(tokens[j].content, 0)
                 break
