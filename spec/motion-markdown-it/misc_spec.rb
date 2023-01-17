@@ -195,6 +195,9 @@ describe 'Misc' do
 
     expect(md.render('123')).to eq "<p>123</p>\n"
     expect(md.render("123\n")).to eq "<p>123</p>\n"
+
+    expect(md.render('    codeblock')).to eq "<pre><code>codeblock\n</code></pre>\n"
+    expect(md.render("    codeblock\n")).to eq "<pre><code>codeblock\n</code></pre>\n"
   end
 
   #------------------------------------------------------------------------------
@@ -368,6 +371,42 @@ describe 'smartquotes' do
   #------------------------------------------------------------------------------
   it 'Should support multi-character quotes in different tags' do
     expect(md.render('"a *b \'c *d* e\' f* g"')).to eq "<p>[[[a <em>b (((((c <em>d</em> e)))) f</em> g]]</p>\n"
+  end
+end
+
+describe 'Ordered list info' do
+  md = MarkdownIt::Parser.new
+
+  def type_filter(tokens, type)
+    return tokens.select { |t| t.type === type }
+  end
+
+  it 'Should mark ordered list item tokens with info' do
+    tokens = md.parse("1. Foo\n2. Bar\n20. Fuzz", {})
+    expect(type_filter(tokens, 'ordered_list_open').length).to eq 1
+
+    tokens = type_filter(tokens, 'list_item_open')
+    expect(tokens.length).to eq 3
+    expect(tokens[0].info).to eq '1'
+    expect(tokens[0].markup).to eq '.'
+    expect(tokens[1].info).to eq '2'
+    expect(tokens[1].markup).to eq '.'
+    expect(tokens[2].info).to eq '20'
+    expect(tokens[2].markup).to eq '.'
+
+    tokens = md.parse(" 1. Foo\n2. Bar\n  20. Fuzz\n 199. Flp", {})
+    expect(type_filter(tokens, 'ordered_list_open').length).to eq 1
+
+    tokens = type_filter(tokens, 'list_item_open')
+    expect(tokens.length).to eq 4
+    expect(tokens[0].info).to eq '1'
+    expect(tokens[0].markup).to eq '.'
+    expect(tokens[1].info).to eq '2'
+    expect(tokens[1].markup).to eq '.'
+    expect(tokens[2].info).to eq '20'
+    expect(tokens[2].markup).to eq '.'
+    expect(tokens[3].info).to eq '199'
+    expect(tokens[3].markup).to eq '.'
   end
 end
 

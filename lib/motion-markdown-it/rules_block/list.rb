@@ -138,7 +138,7 @@ module MarkdownIt
         if ((posAfterMarker = skipOrderedListMarker(state, startLine)) >= 0)
           isOrdered   = true
           start       = state.bMarks[startLine] + state.tShift[startLine]
-          markerValue = state.src[start, posAfterMarker - start - 1].to_i
+          markerValue = state.src[start, posAfterMarker - 1].to_i
 
           # If we're starting a new ordered list right after
           # a paragraph, it should start with 1.
@@ -231,6 +231,9 @@ module MarkdownIt
           token        = state.push('list_item_open', 'li', 1)
           token.markup = markerCharCode.chr
           token.map    = itemLines = [ startLine, 0 ]
+          if (isOrdered)
+            token.info = state.src.slice(start...posAfterMarker - 1)
+          end
 
           # change current state, then restore it after parser subcall
           oldTight                = state.tight
@@ -307,6 +310,7 @@ module MarkdownIt
           if (isOrdered)
             posAfterMarker = skipOrderedListMarker(state, nextLine)
             break if (posAfterMarker < 0)
+            start = state.bMarks[nextLine] + state.tShift[nextLine]
           else
             posAfterMarker = skipBulletListMarker(state, nextLine)
             break if (posAfterMarker < 0)
