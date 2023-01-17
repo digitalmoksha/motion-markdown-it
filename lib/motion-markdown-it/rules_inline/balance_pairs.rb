@@ -29,6 +29,10 @@ module MarkdownIt
           minOpenerIdx = openersBottom[closer[:marker]][closer[:length] % 3]
       
           openerIdx = closerIdx - closer[:jump] - 1
+
+          # avoid crash if `closer.jump` is pointing outside of the array, see #742
+          openerIdx = -1 if (openerIdx < -1)
+
           newMinOpenerIdx = openerIdx
 
           while openerIdx > minOpenerIdx
