@@ -63,7 +63,10 @@ module MarkdownIt
 
        # * Token#info -> String
        # *
-       # * fence infostring
+       # * Additional information:
+       # *
+       # * - Info string for "fence" tokens
+       # * - The value "auto" for autolink "link_open" and "link_close" tokens
       @info     = ''
 
        # * Token#meta -> Object

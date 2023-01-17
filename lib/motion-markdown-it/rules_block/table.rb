@@ -68,9 +68,19 @@ module MarkdownIt
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         return false if (pos >= state.eMarks[nextLine])
 
-        ch = charCodeAt(state.src, pos)
+        firstCh = charCodeAt(state.src, pos)
         pos += 1
-        return false if (ch != 0x7C && ch != 0x2D && ch != 0x3A) # | or  - or :
+        return false if (firstCh != 0x7C && firstCh != 0x2D && firstCh != 0x3A) # | or  - or :
+
+        return false if (pos >= state.eMarks[nextLine])
+
+        secondCh = charCodeAt(state.src, pos)
+        pos += 1
+        return false if (secondCh != 0x7C && secondCh != 0x2D && secondCh != 0x3A && !isSpace(secondCh)) # | or  - or :
+      
+        # if first character is '-', then second character must not be a space
+        # (due to parsing ambiguity with list)
+        return false if (firstCh === 0x2D && isSpace(secondCh)) # - 
 
         while pos < state.eMarks[nextLine]
           ch = charCodeAt(state.src, pos)
