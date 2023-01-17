@@ -26,7 +26,7 @@ module MarkdownIt
         state.line    = last
 
         token         = state.push('code_block', 'code', 0)
-        token.content = state.getLines(startLine, last, 4 + state.blkIndent, true)
+        token.content = state.getLines(startLine, last, 4 + state.blkIndent, false) + "\n"
         token.map     = [ startLine, state.line ]
         return true
       end
