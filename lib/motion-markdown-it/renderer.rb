@@ -287,6 +287,8 @@ module MarkdownIt
           result += tokens[i].content
         elsif tokens[i].type == 'image'
           result += renderInlineAsText(tokens[i].children, options, env)
+        elsif tokens[i].type == 'softbreak'
+          result += "\n"
         end
       end
 
