@@ -20,7 +20,13 @@ module MarkdownIt
         if !silent
           if pmax >= 0 && charCodeAt(state.pending, pmax) == 0x20
             if pmax >= 1 && charCodeAt(state.pending, pmax - 1) == 0x20
-              state.pending = state.pending.sub(/ +$/, '')
+              # Find whitespaces tail of pending chars.
+              ws = pmax - 1
+              while (ws >= 1 && charCodeAt(state.pending, ws - 1) == 0x20)
+                ws -= 1
+              end
+
+              state.pending = state.pending.slice(0...ws)
               state.push('hardbreak', 'br', 0)
             else
               state.pending = state.pending.slice(0...-1)

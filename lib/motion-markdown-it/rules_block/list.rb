@@ -129,7 +129,7 @@ module MarkdownIt
           # This code can fail if plugins use blkIndent as well as lists,
           # but I hope the spec gets fixed long before that happens.
           #
-          if state.tShift[startLine] >= state.blkIndent
+          if state.sCount[startLine] >= state.blkIndent
             isTerminatingParagraph = true
           end
         end
