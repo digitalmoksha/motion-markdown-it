@@ -1,3 +1,3 @@
 module MotionMarkdownIt
-  VERSION = '12.3.0'
+  VERSION = '12.3.2'
 end
