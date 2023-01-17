@@ -27,16 +27,14 @@ module MarkdownIt
           end
       
           minOpenerIdx = openersBottom[closer[:marker]][closer[:length] % 3]
-          newMinOpenerIdx = -1
       
           openerIdx = closerIdx - closer[:jump] - 1
-      
+          newMinOpenerIdx = openerIdx
+
           while openerIdx > minOpenerIdx
             opener = delimiters[openerIdx]
       
             (openerIdx -= opener[:jump] + 1) && next if (opener[:marker] != closer[:marker])
-      
-            newMinOpenerIdx = openerIdx if (newMinOpenerIdx == -1)
       
             if (opener[:open] && opener[:end] < 0)
       

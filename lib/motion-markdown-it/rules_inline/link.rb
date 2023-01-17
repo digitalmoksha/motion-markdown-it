@@ -8,6 +8,7 @@ module MarkdownIt
       #------------------------------------------------------------------------------
       def self.link(state, silent)
         href            = ''
+        title           = ''
         oldPos          = state.pos
         max             = state.posMax
         start           = state.pos
@@ -76,8 +77,6 @@ module MarkdownIt
               break if (!isSpace(code) && code != 0x0A)
               pos += 1
             end
-          else
-            title = ''
           end
 
           if (pos >= max || charCodeAt(state.src, pos) != 0x29) # )

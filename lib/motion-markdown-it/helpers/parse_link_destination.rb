@@ -16,6 +16,7 @@ module MarkdownIt
           while (pos < max)
             code = charCodeAt(str, pos)
             return result if (code == 0x0A) # \n
+            return result if (code == 0x3C) # <
             if (code == 0x3E) #  >
               result[:pos] = pos + 1
               result[:str] = unescapeAll(str.slice((start + 1)...pos))
@@ -46,12 +47,14 @@ module MarkdownIt
           break if (code < 0x20 || code == 0x7F)
 
           if (code == 0x5C && pos + 1 < max) # \
+            break if (charCodeAt(str, pos + 1) == 0x20)
             pos += 2
             next
           end
 
           if (code == 0x28) # (
             level += 1
+            return result if (level > 32)
           end
 
           if (code == 0x29) # )

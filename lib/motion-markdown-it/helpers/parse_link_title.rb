@@ -29,6 +29,8 @@ module MarkdownIt
             result[:str]   = unescapeAll(str.slice((start + 1)...pos))
             result[:ok]    = true
             return result
+          elsif (code == 0x28 && marker == 0x29) # ( and )
+            return result
           elsif (code == 0x0A)
             lines += 1
           elsif (code == 0x5C && pos + 1 < max) # \

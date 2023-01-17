@@ -45,7 +45,6 @@ module MarkdownIt
     'main',
     'menu',
     'menuitem',
-    'meta',
     'nav',
     'noframes',
     'ol',
