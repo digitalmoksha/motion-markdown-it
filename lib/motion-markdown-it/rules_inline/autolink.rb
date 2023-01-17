@@ -5,8 +5,8 @@ module MarkdownIt
     class Autolink
       extend Common::Utils
 
-      EMAIL_RE    = /^<([a-zA-Z0-9.!#$\%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/
-      AUTOLINK_RE = /^<([a-zA-Z][a-zA-Z0-9+.\-]{1,31}):([^<>\x00-\x20]*)>/
+      EMAIL_RE    = /^([a-zA-Z0-9.!#$\%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$/
+      AUTOLINK_RE = /^([a-zA-Z][a-zA-Z0-9+.\-]{1,31}):([^<>\x00-\x20]*)$/
 
       #------------------------------------------------------------------------------
       def self.autolink(state, silent)
@@ -14,14 +14,21 @@ module MarkdownIt
 
         return false if (charCodeAt(state.src, pos) != 0x3C)  # <
 
-        tail = state.src[pos..-1]
+        start = state.pos
+        max = state.posMax
 
-        return false if !tail.include?('>')
+        loop do
+          return false if ((pos += 1) >= max)
 
-        if (AUTOLINK_RE =~ tail)
-          linkMatch = tail.match(AUTOLINK_RE)
+          ch = charCodeAt(state.src, pos)
 
-          url = linkMatch[0].slice(1...-1)
+          return false if (ch == 0x3C) # <
+          break if (ch == 0x3E) # >
+        end
+
+        url = state.src.slice((start + 1)...pos)
+
+        if (AUTOLINK_RE =~ url)
           fullUrl = state.md.normalizeLink.call(url)
           return false if (!state.md.validateLink.call(fullUrl))
 
@@ -39,14 +46,11 @@ module MarkdownIt
             token.info    = 'auto'
           end
 
-          state.pos += linkMatch[0].length
+          state.pos += url.length + 2
           return true
         end
 
-        if (EMAIL_RE =~ tail)
-          emailMatch = tail.match(EMAIL_RE)
-
-          url = emailMatch[0].slice(1...-1)
+        if (EMAIL_RE =~ url)
           fullUrl = state.md.normalizeLink.call('mailto:' + url)
           return false if (!state.md.validateLink.call(fullUrl))
 
@@ -64,7 +68,7 @@ module MarkdownIt
             token.info    = 'auto'
           end
 
-          state.pos += emailMatch[0].length
+          state.pos += url.length + 2
           return true
         end
 

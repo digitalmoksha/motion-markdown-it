@@ -17,7 +17,7 @@ module MarkdownIt
                   
       CLOSE_TAG     = '<\\/[A-Za-z][A-Za-z0-9\\-]*\\s*>'
       COMMENT       = '<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->'
-      PROCESSING    = '<[?].*?[?]>'
+      PROCESSING    = '<[?][\\s\\S]*?[?]>'
       DECLARATION   = '<![A-Z]+\\s+[^>]*>'
       CDATA         = '<!\\[CDATA\\[[\\s\\S]*?\\]\\]>'
 

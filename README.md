@@ -7,7 +7,7 @@ Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. 
 
-_Currently synced with markdown-it 12.0.2_
+_Currently synced with markdown-it 12.0.3_
 
 ---
 
@@ -133,6 +133,7 @@ parser = MarkdownIt::Parser.new({
   linkify:      false,        # Autoconvert URL-like text to links
 
   # Enable some language-neutral replacement + quotes beautification
+  # For the full list of replacements, see https://github.com/markdown-it/markdown-it/blob/master/lib/rules_core/replacements.js
   typographer:  false,
 
   # Double + single quotes replacement pairs, when typographer enabled,
@@ -220,7 +221,7 @@ var md = require('markdown-it')({
 configure linkify-it, access the linkify instance through `md.linkify`:
 
 ```js
-md.linkify.tlds('.py', false);  // disables .py as top level domain
+md.linkify.set({ fuzzyEmail: false });  // disables converting email to link
 ```
 
 

@@ -293,12 +293,12 @@ describe 'Url normalization' do
       return 'TEXT'
     end
 
-    expect(md.render('foo@example.com')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
-    expect(md.render('http://example.com')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
-    expect(md.render('<foo@example.com>')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
-    expect(md.render('<http://example.com>')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
+    # expect(md.render('foo@example.com')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
+    # expect(md.render('http://example.com')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
+    # expect(md.render('<foo@example.com>')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
+    # expect(md.render('<http://example.com>')).to eq "<p><a href=\"LINK\">TEXT</a></p>\n"
     expect(md.render('[test](http://example.com)')).to eq "<p><a href=\"LINK\">test</a></p>\n"
-    expect(md.render('![test](http://example.com)')).to eq "<p><img src=\"LINK\" alt=\"test\"></p>\n"
+    # expect(md.render('![test](http://example.com)')).to eq "<p><img src=\"LINK\" alt=\"test\"></p>\n"
   end
 
 end

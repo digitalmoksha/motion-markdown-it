@@ -5,8 +5,9 @@ module MarkdownIt
     class StateInline
       include MarkdownIt::Common::Utils
 
-      attr_accessor   :src, :env, :md, :tokens, :pos, :posMax, :level, :tokens_meta
-      attr_accessor   :pending, :pendingLevel, :cache, :delimiters
+      attr_accessor :src, :env, :md, :tokens, :pos, :posMax, :level, :tokens_meta
+      attr_accessor :pending, :pendingLevel, :cache, :delimiters
+      attr_accessor :backticks, :backticksScanned
 
       #------------------------------------------------------------------------------
       def initialize(src, md, env, outTokens)
@@ -31,6 +32,10 @@ module MarkdownIt
 
         # Stack of delimiter lists for upper level tags
         @_prev_delimiters = [];
+
+        # backtick length => last seen position
+        @backticks = {}
+        @backticksScanned = false
       end
 
 
