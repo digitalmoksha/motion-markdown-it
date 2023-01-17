@@ -19,14 +19,14 @@ src line: 2984
 This fails only in RubyMotion
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src line: 8071
+src line: 8117
 
 .
-[Толпой][Толпой] is a Russian word.
+[ẞ]
 
-[ТОЛПОЙ]: /url
+[SS]: /url
 .
-<p><a href="/url">Толпой</a> is a Russian word.</p>
+<p><a href="/url">ẞ</a></p>
 .
 
 This one fails in both Ruby and RubyMotion

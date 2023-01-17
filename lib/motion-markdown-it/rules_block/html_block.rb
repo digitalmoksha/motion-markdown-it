@@ -11,7 +11,7 @@ module MarkdownIt
       # last argument defines whether it can terminate a paragraph or not
       #
       HTML_SEQUENCES = [
-        [ /^<(script|pre|style)(?=(\s|>|$))/i, /<\/(script|pre|style)>/i, true ],
+        [ /^<(script|pre|style|textarea)(?=(\s|>|$))/i, /<\/(script|pre|style|textarea)>/i, true ],
         [ /^<!--/,        /-->/,   true ],
         [ /^<\?/,         /\?>/,   true ],
         [ /^<![A-Z]/,     />/,     true ],

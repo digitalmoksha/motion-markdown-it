@@ -7,7 +7,7 @@ Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. 
 
-_Currently synced with markdown-it 12.0.6_
+_Currently synced with markdown-it 12.1.0_
 
 ---
 
@@ -185,7 +185,7 @@ var md = require('markdown-it')({
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return hljs.highlight(lang, str).value;
+        return hljs.highlight(str, { language: lang }).value;
       } catch (__) {}
     }
 
@@ -205,7 +205,7 @@ var md = require('markdown-it')({
     if (lang && hljs.getLanguage(lang)) {
       try {
         return '<pre class="hljs"><code>' +
-               hljs.highlight(lang, str, true).value +
+               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
                '</code></pre>';
       } catch (__) {}
     }
