@@ -18,9 +18,9 @@ module MarkdownIt
       [ 'hr',           lambda { |state, startLine, endLine, silent| RulesBlock::Hr.hr(state, startLine, endLine, silent) },         [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
       [ 'list',         lambda { |state, startLine, endLine, silent| RulesBlock::List.list(state, startLine, endLine, silent) },       [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'reference',    lambda { |state, startLine, endLine, silent| RulesBlock::Reference.reference(state, startLine, endLine, silent) } ],
+      [ 'html_block',   lambda { |state, startLine, endLine, silent| RulesBlock::HtmlBlock.html_block(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'heading',      lambda { |state, startLine, endLine, silent| RulesBlock::Heading.heading(state, startLine, endLine, silent) },    [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'lheading',     lambda { |state, startLine, endLine, silent| RulesBlock::Lheading.lheading(state, startLine, endLine, silent) } ],
-      [ 'html_block',   lambda { |state, startLine, endLine, silent| RulesBlock::HtmlBlock.html_block(state, startLine, endLine, silent) }, [ 'paragraph', 'reference', 'blockquote' ] ],
       [ 'paragraph',    lambda { |state, startLine, endLine, silent| RulesBlock::Paragraph.paragraph(state, startLine) } ]
     ]
 
