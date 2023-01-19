@@ -276,6 +276,14 @@ describe 'Misc' do
   #   );
   # end
 
+  # TODO ------------------------------------------------------------------------------
+  # it 'Should escape surrogate pairs (coverage)' do
+  #   md = MarkdownIt::Parser.new({})
+  # 
+  #   expect(md.render("\\\uD835\uDC9C")).to eq "<p>\\\uD835\uDC9C</p>\n"
+  #   expect(md.render("\\\uD835x")).to eq "<p>\\\uD835x</p>\n"
+  #   expect(md.render("\\\uD835")).to eq "<p>\\\uD835</p>\n"
+  # end
 end
 
 

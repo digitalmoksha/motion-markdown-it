@@ -10,7 +10,7 @@ module MarkdownIt
         pos = state.bMarks[line] + state.tShift[line]
         max = state.eMarks[line]
 
-        return state.src[pos, max - pos]
+        return state.src[pos...max]
       end
 
       #------------------------------------------------------------------------------

@@ -15,15 +15,14 @@ module MarkdownIt
 
       # TODO (from original)
       # - fractionals 1/2, 1/4, 3/4 -> ½, ¼, ¾
-      # - miltiplication 2 x 4 -> 2 × 4
+      # - multiplications 2 x 4 -> 2 × 4
 
       RARE_RE = /\+-|\.\.|\?\?\?\?|!!!!|,,|--/
 
-      SCOPED_ABBR_RE = /\((c|tm|r|p)\)/i
+      SCOPED_ABBR_RE = /\((c|tm|r)\)/i
       SCOPED_ABBR = {
         'c' => '©',
         'r' => '®',
-        'p' => '§',
         'tm' => '™'
       }
 

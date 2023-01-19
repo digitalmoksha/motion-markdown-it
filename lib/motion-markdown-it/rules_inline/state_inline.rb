@@ -7,7 +7,7 @@ module MarkdownIt
 
       attr_accessor :src, :env, :md, :tokens, :pos, :posMax, :level, :tokens_meta
       attr_accessor :pending, :pendingLevel, :cache, :delimiters
-      attr_accessor :backticks, :backticksScanned
+      attr_accessor :backticks, :backticksScanned, :linkLevel
 
       #------------------------------------------------------------------------------
       def initialize(src, md, env, outTokens)
@@ -36,6 +36,10 @@ module MarkdownIt
         # backtick length => last seen position
         @backticks = {}
         @backticksScanned = false
+
+        # Counter used to disable inline linkify-it execution
+        # inside <a> and markdown links
+        @linkLevel = 0
       end
 
 

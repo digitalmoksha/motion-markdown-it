@@ -13,6 +13,7 @@ module MarkdownIt
 
     RULES = [
       [ 'text',            lambda { |state, startLine| RulesInline::Text.text(state, startLine) } ],
+      [ 'linkify',         lambda { |state, silent| RulesInline::Linkify.linkify(state, silent) } ],
       [ 'newline',         lambda { |state, startLine| RulesInline::Newline.newline(state, startLine) } ],
       [ 'escape',          lambda { |state, startLine| RulesInline::Escape.escape(state, startLine) } ],
       [ 'backticks',       lambda { |state, startLine| RulesInline::Backticks.backtick(state, startLine) } ],
@@ -25,11 +26,19 @@ module MarkdownIt
       [ 'entity',          lambda { |state, startLine| RulesInline::Entity.entity(state, startLine) } ],
     ]
 
+    # `rule2` ruleset was created specifically for emphasis/strikethrough
+    # post-processing and may be changed in the future.
+    #
+    # Don't use this for anything except pairs (plugins working with `balance_pairs`).
+    #
     RULES2 = [
       [ 'balance_pairs',   lambda { |state| RulesInline::BalancePairs.link_pairs(state) } ],
       [ 'strikethrough',   lambda { |state| RulesInline::Strikethrough.postProcess(state) } ],
       [ 'emphasis',        lambda { |state| RulesInline::Emphasis.postProcess(state) } ],
-      [ 'text_collapse',   lambda { |state| RulesInline::TextCollapse.text_collapse(state) } ]
+      # [ 'text_collapse',   lambda { |state| RulesInline::TextCollapse.text_collapse(state) } ]
+      # rules for pairs separate '**' into its own text tokens, which may be left unused,
+      # rule below merges unused segments back with the rest of the text
+      [ 'fragments_join',  lambda { |state| RulesInline::FragmentsJoin.fragments_join(state) } ]
     ];
 
     #------------------------------------------------------------------------------

@@ -29,14 +29,6 @@ trademark
 .
 
 
-paragraph
-.
-(p) (P)
-.
-<p>§ §</p>
-.
-
-
 plus-minus
 .
 +-5
@@ -60,6 +52,20 @@ dupes
 <p>!!! ??? ,</p>
 .
 
+copyright should be escapable
+.
+\(c)
+.
+<p>(c)</p>
+.
+
+shouldn't replace entities
+.
+&#40;c) (c&#41; (c)
+.
+<p>(c) (c) ©</p>
+.
+
 
 dashes
 .
@@ -78,6 +84,16 @@ markdownit--awesome
 <p>abc ----</p>
 <p>–markdownit – super–</p>
 <p>markdownit–awesome</p>
+.
+
+dashes should be escapable
+.
+foo \-- bar
+
+foo -\- bar
+.
+<p>foo -- bar</p>
+<p>foo -- bar</p>
 .
 
 regression tests for #624

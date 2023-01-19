@@ -7,6 +7,14 @@ module MarkdownIt
       include MarkdownIt::Common::HtmlRe
 
       #------------------------------------------------------------------------------
+      def self.isLinkOpen(str)
+        return !(/^<a[>\s]/i =~ str).nil?
+      end
+      def self.isLinkClose(str)
+        return !(/^<\/a\s*>/i =~ str).nil?
+      end
+
+      #------------------------------------------------------------------------------
       def self.isLetter(ch)
         lc = ch | 0x20    # to lower case
         return (lc >= 0x61) && (lc <= 0x7a)  # >= a && <= z
@@ -39,6 +47,9 @@ module MarkdownIt
         if !silent
           token         = state.push('html_inline', '', 0)
           token.content = state.src.slice(pos...(pos + match[0].length))
+
+          state.linkLevel += 1 if (isLinkOpen(token.content))
+          state.linkLevel -= 1 if (isLinkClose(token.content))
         end
         state.pos += match[0].length
         return true

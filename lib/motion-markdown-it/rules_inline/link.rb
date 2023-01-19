@@ -132,9 +132,11 @@ module MarkdownIt
             attrs.push([ 'title', title ])
           end
 
+          state.linkLevel += 1
           state.md.inline.tokenize(state)
+          state.linkLevel -= 1
 
-          token        = state.push('link_close', 'a', -1)
+          token = state.push('link_close', 'a', -1)
         end
 
         state.pos     = pos

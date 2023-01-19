@@ -11,7 +11,6 @@ module MarkdownIt
 
       '\\!"#$%&\'()*+,./:;<=>?@[]^_`{|}~-'.split('').each { |ch| ESCAPED[ch.ord] = 1 }
 
-
       #------------------------------------------------------------------------------
       def self.escape(state, silent)
         pos = state.pos
@@ -21,35 +20,55 @@ module MarkdownIt
 
         pos += 1
 
-        if pos < max
-          ch = charCodeAt(state.src, pos)
+        # '\' at the end of the inline block
+        return false if pos >= max
 
-          if ch < 256 && ESCAPED[ch] != 0
-            state.pending += state.src[pos] if !silent
-            state.pos     += 2
-            return true
+        ch1 = charCodeAt(state.src, pos)
+
+        if ch1 == 0x0A
+          if !silent
+            state.push('hardbreak', 'br', 0)
           end
 
-          if ch == 0x0A
-            if !silent
-              state.push('hardbreak', 'br', 0)
-            end
-
+          pos += 1
+          # skip leading whitespaces from next line
+          while pos < max
+            ch1 = charCodeAt(state.src, pos)
+            break if !isSpace(ch1)
             pos += 1
-            # skip leading whitespaces from next line
-            while pos < max
-              ch = charCodeAt(state.src, pos)
-              break if !isSpace(ch)
-              pos += 1
-            end
+          end
 
-            state.pos = pos
-            return true
+          state.pos = pos
+          return true
+        end
+
+        escapedStr = state.src[pos]
+
+        if (ch1 >= 0xD800 && ch1 <= 0xDBFF && pos + 1 < max)
+          ch2 = charCodeAt(state.src, pos + 1)
+      
+          if (ch2 >= 0xDC00 && ch2 <= 0xDFFF)
+            escapedStr += state.src[pos + 1]
+            pos += 1
           end
         end
 
-        state.pending += '\\' if !silent
-        state.pos += 1
+        origStr = '\\' + escapedStr
+
+        if (!silent)
+          token = state.push('text_special', '', 0)
+
+          if ch1 < 256 && ESCAPED[ch1] != 0
+            token.content = escapedStr
+          else
+            token.content = origStr
+          end
+  
+          token.markup = origStr
+          token.info   = 'escape'
+        end
+
+        state.pos = pos + 1
         return true
       end
     end
