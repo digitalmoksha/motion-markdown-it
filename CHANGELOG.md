@@ -1,3 +1,8 @@
+13.0.0
+-------
+
+Synced with markdown-it 13.0.0, see the [CHANGELOG](https://github.com/markdown-it/markdown-it/blob/master/CHANGELOG.md)
+
 12.3.2
 -------
 

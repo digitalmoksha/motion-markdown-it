@@ -10,12 +10,15 @@ module MarkdownIt
     attr_accessor   :ruler
 
     RULES = [
-      [ 'normalize',      lambda { |state| RulesCore::Normalize.normalize(state) }         ],
+      [ 'normalize',      lambda { |state| RulesCore::Normalize.normalize(state) }      ],
       [ 'block',          lambda { |state| RulesCore::Block.block(state) }              ],
       [ 'inline',         lambda { |state| RulesCore::Inline.inline(state) }            ],
       [ 'linkify',        lambda { |state| RulesCore::Linkify.linkify(state) }          ],
       [ 'replacements',   lambda { |state| RulesCore::Replacements.replace(state) }     ],
       [ 'smartquotes',    lambda { |state| RulesCore::Smartquotes.smartquotes(state) }  ],
+      # `text_join` finds `text_special` tokens (for escape sequences)
+      # and joins them with the rest of the text
+      [ 'text_join',      lambda { |state| RulesCore::TextJoin.text_join(state) }       ],
     ]
 
 

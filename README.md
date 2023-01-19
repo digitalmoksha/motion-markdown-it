@@ -7,7 +7,7 @@ Ruby/RubyMotion version of Markdown-it (CommonMark compliant and extendable)
 
 This gem is a port of the [markdown-it Javascript package](https://github.com/markdown-it/markdown-it) by Vitaly Puzrin and Alex Kocharin. 
 
-_Currently synced with markdown-it 12.3.2_
+_Currently synced with markdown-it 13.0.0_
 
 ---
 
@@ -260,7 +260,7 @@ By default all rules are enabled, but can be restricted by options. On plugin
 load all its rules are enabled automatically.
 
 ```js
-// Activate/deactivate rules, with curring
+// Activate/deactivate rules, with currying
 var md = require('markdown-it')()
             .disable([ 'link', 'image' ])
             .enable([ 'link' ])

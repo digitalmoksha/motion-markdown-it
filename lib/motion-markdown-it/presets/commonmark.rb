@@ -39,7 +39,8 @@ module MarkdownIt
               rules: [
                 'normalize',
                 'block',
-                'inline'
+                'inline',
+                'text_join'
               ]
             },
 
@@ -74,7 +75,7 @@ module MarkdownIt
               rules2: [
                 'balance_pairs',
                 'emphasis',
-                'text_collapse'
+                'fragments_join'
               ]
             }
           }

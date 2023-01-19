@@ -66,6 +66,16 @@ module MarkdownIt
               level   = currentToken.level
               lastPos = 0
               
+              # forbid escape sequence at the start of the string,
+              # this avoids http\://example.com/ from being linkified as
+              # http:<a href="//example.com/">//example.com/</a>
+              if (links.length > 0 &&
+                  links[0].index == 0 &&
+                  i > 0 &&
+                  tokens[i - 1].type == 'text_special')
+                links = links.slice(1..-1)
+              end
+
               (0...links.length).each do |ln|
                 url = links[ln].url
                 fullUrl = state.md.normalizeLink.call(url)
